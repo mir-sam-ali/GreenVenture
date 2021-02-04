@@ -5,18 +5,18 @@ import Game from './scenes/Game'
 
 const config = {
 	type: Phaser.AUTO,
-	width: 1000,
-	height: 600,
+	parent: 'game-canvas',
 	physics: {
 		default: 'arcade',
 		arcade: {
 			gravity: { y: 200 }
 		}
 	},
-	//pixelArt: true,//here
-	scale:{
-		mode:Phaser.Scale.ScaleModes.FIT,
-	},
+	// pixelArt: true,//here
+	// antialias: false,
+	// scale:{
+	// 	mode:Phaser.Scale.ScaleModes.FIT,
+	// },
 	
 	scene: [Game]
 }

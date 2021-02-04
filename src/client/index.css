@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Paytone+One&display=swap');
+body { 
+    margin:0; 
+    padding:0; 
+    overflow:hidden 
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #329C0D;
+    color: white;
+    font-family: 'Paytone One', sans-serif;
+}
+
+.join-controls {
+    display: flex;
+}
+
+.join-game {
+    margin-left: 20px;
+}
+
+.game-section {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+#game-canvas {
+    flex: 2;
+}
+
+#game-canvas canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.game-stats {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    font-family: 'Paytone One', sans-serif;
+}

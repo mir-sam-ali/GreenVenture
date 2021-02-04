@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import * as Colyseus from 'colyseus.js';
 
-
 const dicePositionsOffset=[
     {x:400,y:200},
     {x:-400,y:200},
@@ -20,13 +19,10 @@ export default class Game extends Phaser.Scene
     init()
     {
         this.client = new Colyseus.Client('ws://localhost:2567');
-       
-      
     }
 
 	preload()
     {
-        this.load.image("background","assets/background/green-building.jpg")
         this.load.image("board","assets/board.svg");
         this.load.image("blue","assets/sprites/player1/automobile.png")
         this.load.image("green","assets/sprites/player2/automobile.png")
@@ -43,18 +39,11 @@ export default class Game extends Phaser.Scene
     async create()
     {
         
-        const {width,height}=this.scale;
+        const {width,height} = this.scale;
         const cx=width*0.5;
         const cy=height*0.5;
-        const background=this.add.image(window.innerWidth,window.innerHeight,"background");
         const board=this.add.image(width*0.5,height*0.5,"board");
-        board.setScale(0.35)
-        //board.setOrigin(1.3,1.02)
-        background.setOrigin(1.4,1.3)
-
-        //background.setDisplaySize(window.innerWidth,window.innerHeight);
-        // board.setDisplaySize(500,500);
-       
+        board.setScale(0.36, 0.36);
 
         const room = await this.client.joinOrCreate('GameRoom');
         console.log("connected to room:", room.name,room.sessionId);

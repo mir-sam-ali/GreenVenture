@@ -1,13 +1,38 @@
 <html>
 	<head>
 		<title>Green Ventures</title>
-		<style>
-			body { margin:0; padding:0; overflow:hidden }
-body>canvas { width:100%!important; height:100%!important; 
-  position:fixed; top:0; left:0 }
-		</style>
+		<link rel="stylesheet" href="index.css">
 	</head>
 	<body>
+
+		<nav class="navbar">
+			<div class="brand">
+				GREEN VENTURES
+			</div>
+			
+			<div class="join-controls">
+				<div class="create-game">
+					Create Game
+				</div>
+
+				<div class="join-game">
+					Join Game
+				</div>
+			</div>
+		</nav>
+
+		<div class="game-section">
+			<div id="game-canvas">
+
+			</div>
+
+			<div class="game-stats">
+				Leader Board
+			</div>
+		</div>
+
 		<script src="main.js"></script>
+		<script src="enterGame.js"></script>
+	
 	</body>
 </html>
