@@ -23,8 +23,9 @@ module.exports.GameRoom = class GameRoom extends Room {
 
         this.onMessage("DiceRoll",(client)=>{
             const value=randomInt(1,7);
-            // this.broadcast("DiceRollResult",value);
+            
             this.state.lastDiceValue=value
+            this.broadcast("DiceRollResult",value);
             console.log(this.state)
             console.log(`dice roll: ${client.sessionId}`)
         })

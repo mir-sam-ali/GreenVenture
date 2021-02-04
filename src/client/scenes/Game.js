@@ -11,6 +11,8 @@ const dicePositionsOffset=[
 ]
 
 
+const ServerEvents= new Phaser.Events.EventEmitter();
+
 
 export default class Game extends Phaser.Scene
 {
@@ -27,6 +29,9 @@ export default class Game extends Phaser.Scene
         this.client = new Colyseus.Client('ws://localhost:2567');
         this.stateMachine= new StateMachine(this,"game");
         this.stateMachine.addState('idle')
+            .addState('wait-for-dice-roll',{
+                onEnter:this.handleWaitForDiceRoll,
+            })
             .addState('dice-roll',{
                 onEnter: this.handleDiceRollEnter,
                 onUpdate: this.handleDiceRollUpdate 
@@ -87,6 +92,8 @@ export default class Game extends Phaser.Scene
                         break;
                 }
             })
+
+            this.stateMachine.setState("wait-for-dice-roll");
         })
 
 
@@ -94,6 +101,9 @@ export default class Game extends Phaser.Scene
 
         const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6').setInteractive();
         this.dice=dice;
+
+        
+
         dice.on('pointerdown', (pointer)=> {
 
             //console.log(this)
@@ -101,6 +111,14 @@ export default class Game extends Phaser.Scene
     
         });
        
+        this.room.onMessage('*',(type,message)=>{
+            console.log(type);
+            ServerEvents.emit("DiceRollResult",message);
+        })
+        // this.room.state.onChange=(changes=>{
+        //     ServerEvents.emit('onChange',changes);
+        // })
+        
         
 
 
@@ -123,22 +141,24 @@ export default class Game extends Phaser.Scene
 
             
 
+            ServerEvents.once("DiceRollResult",(message)=>{
+                this.room.state.lastDiceValue=message.value;
 
-            this.room.state.onChange=(changes=>{
-                console.log(changes);
-                if(changes && changes.length!==0){
-                changes.forEach(change=>{
-                    if(change.field!=="lastDiceValue"){
-                        return;
-                    }
-                    this.room.state.onChange=undefined;
-
-                    this.time.delayedCall(1000,()=>{
-                        this.stateMachine.setState('dice-roll-finish')
-                    })
-                    
-                })}
+                this.time.delayedCall(1000,()=>{
+                    this.stateMachine.setState('dice-roll-finish')
+                })
             })
+            // this.room.state.onChange=(changes=>{
+            //     console.log(changes);
+            //     if(changes && changes.length!==0){
+            //     changes.forEach(change=>{
+            //         if(change.field!=="lastDiceValue"){
+            //             return;
+            //         }
+                    
+                    
+            //     })}
+            // })
 
     }
 
@@ -155,5 +175,16 @@ export default class Game extends Phaser.Scene
     handleDiceRollFinishEnter(){
         
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
+        this.stateMachine.setState("wait-for-dice-roll");
+    }
+
+    handleWaitForDiceRoll(){
+        ServerEvents.once("DiceRollResult",(message)=>{
+            this.room.state.lastDiceValue=message.value;
+
+            this.time.delayedCall(1000,()=>{
+                this.stateMachine.setState('dice-roll-finish')
+            })
+        })
     }
 }
