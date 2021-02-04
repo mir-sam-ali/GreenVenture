@@ -23,6 +23,7 @@ export default class StateMachine
 
 	constructor(context, id)
 	{
+		console.log("State Machine Created")
 		this.id = id || this.id
 		this.context = context
 	}
@@ -41,9 +42,9 @@ export default class StateMachine
 	{
         const context = this.context
         
-        const onEnter = config.onEnter? config.onEnter: () => {};
-        const onUpdate = config.onUpdate? config.onUpdate: () => {};
-        const onExit = config.onExit? config.onExit: () => {};
+        const onEnter = config?.onEnter? config.onEnter: () => {};
+        const onUpdate = config?.onUpdate? config.onUpdate: () => {};
+        const onExit = config?.onExit? config.onExit: () => {};
 		
 		this.states.set(name, {
 			name,

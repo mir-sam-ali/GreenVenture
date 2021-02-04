@@ -1,5 +1,5 @@
 // import {Schema,type,ArraySchema} from "@colyseus/schema"
-const {Schema,type,ArraySchema}=require("@colyseus/schema")
+const {Schema,type,ArraySchema,defineTypes}=require("@colyseus/schema")
 
 
 
@@ -21,9 +21,10 @@ class PlayerState extends Schema {
     }
 }
 
-module.exports.GameRoomState = class GameRoomState {
+class GameRoomState extends Schema {
     constructor(){
-        
+        super();
+        this.lastDiceValue=0;
         this.mySynchronizedProperty = "Hello World";
         this.playerStates=new ArraySchema();
 
@@ -34,3 +35,9 @@ module.exports.GameRoomState = class GameRoomState {
     }
     
 }
+module.exports.GameRoomState = GameRoomState;
+
+defineTypes(GameRoomState, {
+    lastDiceValue: "number",
+    playerStates: [PlayerState],
+  });

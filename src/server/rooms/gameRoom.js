@@ -1,10 +1,13 @@
 const { Room } = require("colyseus");
+const { randomInt } = require("../../shared/math/random");
+//const  ClientMessage  = require("../../ClientMessage");
 const  {GameRoomState}  = require('./schema/gameRoomState');
 
 module.exports.GameRoom = class GameRoom extends Room {
     // this room supports only 4 clients connected
     constructor(){
         super();
+        
         
         this.maxClients = 5;
     }
@@ -16,6 +19,14 @@ module.exports.GameRoom = class GameRoom extends Room {
             this.broadcast('keydown',message,{
                 except:client,
             })
+        })
+
+        this.onMessage("DiceRoll",(client)=>{
+            const value=randomInt(1,7);
+            // this.broadcast("DiceRollResult",value);
+            this.state.lastDiceValue=value
+            console.log(this.state)
+            console.log(`dice roll: ${client.sessionId}`)
         })
     }
 

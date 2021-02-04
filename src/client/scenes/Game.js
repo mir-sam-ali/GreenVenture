@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import * as Colyseus from 'colyseus.js';
+import StateMachine from '../statemachine/StateMachine';
+//import ClientMessage from "../../ClientMessage"
 
 const dicePositionsOffset=[
     {x:400,y:200},
@@ -8,17 +10,31 @@ const dicePositionsOffset=[
     {x:400,y:-200},
 ]
 
+
+
 export default class Game extends Phaser.Scene
 {
 	constructor()
 	{
-		super('game')
+        super('game')
+        this.diceRollAnimationAccumulator=0;
+        
     }
     
     
     init()
     {
         this.client = new Colyseus.Client('ws://localhost:2567');
+        this.stateMachine= new StateMachine(this,"game");
+        this.stateMachine.addState('idle')
+            .addState('dice-roll',{
+                onEnter: this.handleDiceRollEnter,
+                onUpdate: this.handleDiceRollUpdate 
+            })
+            .addState('dice-roll-finish',{
+                onEnter: this.handleDiceRollFinishEnter,
+            })
+            .setState('idle');
     }
 
 	preload()
@@ -31,7 +47,7 @@ export default class Game extends Phaser.Scene
         this.load.image("yellow","assets/sprites/player5/automobile.png")
 
         for(let i = 1;i<=6;i++){
-            console.log(`die-image-${i}`,`Dice/dieRed_border${i}.png`)
+            //console.log(`die-image-${i}`,`Dice/dieRed_border${i}.png`)
             this.load.image(`die-image-${i}`,`assets/Dice/dieRed_border${i}.png`)
         }
     }
@@ -46,11 +62,12 @@ export default class Game extends Phaser.Scene
         board.setScale(0.36, 0.36);
 
         const room = await this.client.joinOrCreate('GameRoom');
+        this.room = room;
         console.log("connected to room:", room.name,room.sessionId);
 
         room.onStateChange.once(state=>{
-            console.dir(state);
-            console.log(state.playerStates);
+            // console.dir(state);
+            // console.log(state.playerStates);
             state.playerStates.forEach((playerState,idx)=>{
                 switch(idx){
                     case 0:
@@ -75,38 +92,68 @@ export default class Game extends Phaser.Scene
 
         // Dice
 
-        const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6');
+        const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6').setInteractive();
+        this.dice=dice;
+        dice.on('pointerdown', (pointer)=> {
 
-
-        // room.onMessage("keydown",(message)=>{
-        //     console.log(message);
-        // })
-
-        // this.input.keyboard.on("keydown",(evt)=>{
-        //     room.send('keyboard',evt.key);
-        // })
-
-
+            //console.log(this)
+            this.stateMachine.setState('dice-roll');
+    
+        });
+       
         
 
-        // this.add.image(400, 300, 'sky')
-
-        // const particles = this.add.particles('red')
-
-        // const emitter = particles.createEmitter({
-        //     speed: 100,
-        //     scale: { start: 1, end: 0 },
-        //     blendMode: 'ADD'
-        // })
-
-        // const logo = this.physics.add.image(400, 100, 'logo')
-
-        // logo.setVelocity(100, 200)
-        // logo.setBounce(1, 1)
-        // logo.setCollideWorldBounds(true)
-
-        // emitter.startFollow(logo)
 
 
+    }
+
+    update(t,dt){
+        this.stateMachine.update(dt);
+    }
+
+    handleDiceRollEnter(){
+           
+
+            this.room.send("DiceRoll");
+            //console.log(this.room)
+
+            const value=Phaser.Math.Between(1,6);
+            this.dice.setTexture(`die-image-${value}`);
+            this.diceRollAnimationAccumulator=0;
+
+            
+
+
+            this.room.state.onChange=(changes=>{
+                console.log(changes);
+                if(changes && changes.length!==0){
+                changes.forEach(change=>{
+                    if(change.field!=="lastDiceValue"){
+                        return;
+                    }
+                    this.room.state.onChange=undefined;
+
+                    this.time.delayedCall(1000,()=>{
+                        this.stateMachine.setState('dice-roll-finish')
+                    })
+                    
+                })}
+            })
+
+    }
+
+    handleDiceRollUpdate(dt){
+        this.diceRollAnimationAccumulator+=dt;
+        if(this.diceRollAnimationAccumulator>=100){
+            const value=Phaser.Math.Between(1,6);
+            this.dice.setTexture(`die-image-${value}`);
+            this.diceRollAnimationAccumulator=0;
+        }
+            
+    }
+
+    handleDiceRollFinishEnter(){
+        
+        this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
     }
 }
