@@ -17,6 +17,7 @@ const config = {
 	scale:{
 		mode:Phaser.Scale.ScaleModes.FIT,
 	},
+	
 	scene: [Game]
 }
 
