@@ -1,3 +1,6 @@
 module.exports.GameRoomState = class GameRoomState {
-    mySynchronizedProperty = "Hello World";
+    constructor(){
+        this.mySynchronizedProperty = "Hello World";
+    }
+    
 }

@@ -15,11 +15,12 @@ export default class HelloWorldScene extends Phaser.Scene
 
 	preload()
     {
-        
+       
     }
 
     async create()
     {
+       
         const room = await this.client.joinOrCreate('GameRoom');
         console.log("connected to room:", room.name);
 

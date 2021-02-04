@@ -1,11 +1,11 @@
 import 'regenerator-runtime/runtime';
 import Phaser from 'phaser';
 
-import HelloWorldScene from './scenes/HelloWorldScene'
+import Game from './scenes/Game'
 
 const config = {
 	type: Phaser.AUTO,
-	width: 800,
+	width: 1000,
 	height: 600,
 	physics: {
 		default: 'arcade',
@@ -13,7 +13,11 @@ const config = {
 			gravity: { y: 200 }
 		}
 	},
-	scene: [HelloWorldScene]
+	//pixelArt: true,//here
+	scale:{
+		mode:Phaser.Scale.ScaleModes.FIT,
+	},
+	scene: [Game]
 }
 
 export default new Phaser.Game(config)

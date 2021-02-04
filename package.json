@@ -17,7 +17,6 @@
 	"homepage": "https://github.com/ourcade/phaser3-parcel-template",
 	"devDependencies": {
 		"@babel/core": "^7.10.5",
-		"@babel/plugin-proposal-class-properties": "^7.10.4",
 		"babel-eslint": "^10.1.0",
 		"eslint": "^6.8.0",
 		"minimist": ">=1.2.2",
@@ -31,6 +30,7 @@
 		"colyseus.js": "^0.14.1",
 		"cors": "^2.8.5",
 		"express": "^4.17.1",
+		"parcel-bundler": "^1.12.4",
 		"phaser": "^3.50.1",
 		"regenerator-runtime": "^0.13.7"
 	},
