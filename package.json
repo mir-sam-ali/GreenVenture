@@ -25,6 +25,7 @@
 		"parcel-plugin-static-files-copy": "^2.4.3"
 	},
 	"dependencies": {
+		"@colyseus/command": "^0.1.6",
 		"@colyseus/monitor": "^0.14.0",
 		"colyseus": "^0.14.6",
 		"colyseus.js": "^0.14.1",
