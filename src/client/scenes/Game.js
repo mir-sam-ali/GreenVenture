@@ -112,7 +112,7 @@ export default class Game extends Phaser.Scene
         });
        
         this.room.onMessage('*',(type,message)=>{
-            console.log(type);
+            //console.log(type);
             ServerEvents.emit("DiceRollResult",message);
         })
         // this.room.state.onChange=(changes=>{
@@ -142,7 +142,8 @@ export default class Game extends Phaser.Scene
             
 
             ServerEvents.once("DiceRollResult",(message)=>{
-                this.room.state.lastDiceValue=message.value;
+                
+                this.room.state.lastDiceValue=message;
 
                 this.time.delayedCall(1000,()=>{
                     this.stateMachine.setState('dice-roll-finish')
@@ -180,7 +181,8 @@ export default class Game extends Phaser.Scene
 
     handleWaitForDiceRoll(){
         ServerEvents.once("DiceRollResult",(message)=>{
-            this.room.state.lastDiceValue=message.value;
+            console.log(message);
+            this.room.state.lastDiceValue=message;
 
             this.time.delayedCall(1000,()=>{
                 this.stateMachine.setState('dice-roll-finish')
