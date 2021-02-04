@@ -1,36 +1,46 @@
 // import {Schema,type,ArraySchema} from "@colyseus/schema"
-const {Schema,type,ArraySchema}=require("@colyseus/schema")
+const { Schema, ArraySchema, type } = require("@colyseus/schema")
+const schema = require('@colyseus/schema');
 
-
-
-class PieceState extends Schema{
-    constructor(){
+class PieceState extends Schema {
+    constructor() {
         super();
-        this.x=0;
-        this.y=0;
+        this.x = 0;
+        this.y = 0;
     }
 }
+schema.defineTypes(PieceState, {
+    x: "number",
+    y: "number"
+});
 
 class PlayerState extends Schema {
-    
-    constructor(){
+    constructor(id, index) {
         super();
-        // this.id=id;
-        this.piece=new PieceState();
-        console.log(this.piece)
+        this.id = id;
+        this.index = index;
+        this.piece = new PieceState();
+        // console.log(this.piece)
     }
 }
+schema.defineTypes(PlayerState, {
+    id: "string",
+    index: "number",
+    piece: PieceState
+});
 
-module.exports.GameRoomState = class GameRoomState {
-    constructor(){
-        
-        this.mySynchronizedProperty = "Hello World";
-        this.playerStates=new ArraySchema();
-
-        this.playerStates.push(new PlayerState());
-        this.playerStates.push(new PlayerState());
-        this.playerStates.push(new PlayerState());
-        this.playerStates.push(new PlayerState());
+class GameRoomState extends Schema {
+    constructor() {
+        super();
+        this.playerStates = new ArraySchema();
     }
-    
+}
+schema.defineTypes(GameRoomState, {
+    playerStates: [ PlayerState ]
+});
+
+module.exports = {
+    GameRoomState,
+    PlayerState,
+    PieceState
 }
