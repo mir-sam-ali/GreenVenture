@@ -79,12 +79,9 @@ export default class Game extends Phaser.Scene
 
         room.onStateChange.once(state=>{
             this.handleInitialState(state, cx, cy);
-            const text = this.add.text(350, 40,`It's ${indexToColorMapping[state.currentPlayerTurnIndex]} Player's Turn`, {
-                fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif',
-                // @ts-ignore
-                fontSize:'30px',
-                color:colors[state.currentPlayerTurnIndex],
-                // fill: "#ff0044",
+            const text = this.add.text(cx-290, cy-350,`Current Turn: ${indexToColorMapping[state.currentPlayerTurnIndex]}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'28px',
                 align: "center"
             });
             this.text = text;
@@ -93,12 +90,12 @@ export default class Game extends Phaser.Scene
         })
             
         this.room.state.playerStates.onAdd = (item) => {
-            //console.log("onAdd func", item);
+            console.log("onAdd func", item);
             this.initializePlayerState(item, cx, cy);
         } 
 
         this.room.state.playerStates.onRemove = (item) => {
-            //console.log("onRemove func", item);
+            console.log("onRemove func", item);
             const pieces = this.piecesForPlayer[item.id];
             if(!pieces) {
                 return 
@@ -109,6 +106,7 @@ export default class Game extends Phaser.Scene
 
 
         const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6').setInteractive();
+        dice.setScale(0.8);
         this.dice=dice;
 
         dice.on('pointerdown', (pointer)=> {
@@ -201,11 +199,13 @@ export default class Game extends Phaser.Scene
         let prev_turn=this.room.state.currentPlayerTurnIndex;
         let next_turn=prev_turn+1;
         console.log(prev_turn);
+
         if(prev_turn==(this.room.state.playerStates.length-1)){
             next_turn=0;
         }
-        this.text.setText(`It's ${indexToColorMapping[next_turn]} Player's Turn`);
-        this.text.setColor(colors[next_turn]);
+
+        this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
+        // this.text.setColor(colors[next_turn]);
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
         

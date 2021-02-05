@@ -1,5 +1,5 @@
 // import {Schema,type,ArraySchema} from "@colyseus/schema"
-const {Schema,type,ArraySchema,defineTypes}=require("@colyseus/schema")
+const { Schema, ArraySchema } = require("@colyseus/schema")
 
 const schema = require('@colyseus/schema');
 
@@ -37,16 +37,10 @@ class GameRoomState extends Schema {
         this.currentPlayerTurnIndex=0;
 
         this.mySynchronizedProperty = "Hello World";
-        this.playerStates=new ArraySchema();
+        this.playerStates = new ArraySchema();
     }
     
 }
-
-
-// defineTypes(GameRoomState, {
-    
-//     playerStates: [PlayerState],
-//   });
     
 schema.defineTypes(GameRoomState, {
     playerStates: [ PlayerState ],

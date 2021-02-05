@@ -12,6 +12,7 @@ const config = {
 			gravity: { y: 200 }
 		}
 	},
+	backgroundColor: "#329C0D",
 	// pixelArt: true,//here
 	// antialias: false,
 	// scale:{

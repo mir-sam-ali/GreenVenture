@@ -4,6 +4,7 @@ const { randomInt } = require("../../shared/math/random");
 const  { GameRoomState, PlayerState }  = require('./schema/gameRoomState');
 const { Dispatcher } = require('@colyseus/command');
 const { OnJoinCommand } = require("../commands/onJoinCmd");
+const { OnLeaveCommand } = require("../commands/onLeaveCmd");
 
 
 module.exports.GameRoom = class GameRoom extends Room {
@@ -47,13 +48,9 @@ module.exports.GameRoom = class GameRoom extends Room {
     }
 
     onLeave (client) {
-        const { index } = this.state.playerStates.find(player => player.id === client.sessionId);
-       // console.log("removing", index);
-        if(!index) {
-            return
-        }
-        
-        this.state.playerStates.splice(index, 1);
+        this.dispatcher.dispatch(new OnLeaveCommand(), {
+            sessionId: client.sessionId
+        })
     }
 
     onDispose () {
