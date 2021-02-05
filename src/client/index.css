@@ -2,14 +2,14 @@
 body { 
     margin:0; 
     padding:0; 
-    overflow:hidden 
+    overflow:hidden;
+    background-color: #329C0D;
 }
 
 .navbar {
     display: flex;
     justify-content: space-between;
     padding: 20px;
-    background-color: #329C0D;
     color: white;
     font-family: 'Paytone One', sans-serif;
 }
@@ -41,6 +41,86 @@ body {
 .game-stats {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     font-family: 'Paytone One', sans-serif;
+    color: white;
+}
+
+.score-board {
+    flex: 1;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.score-board ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.score-board ul li {
+    margin: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 100%;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.score-board ul .name {
+    font-size: 22px;
+}
+
+.score-board ul .currency {
+    padding-left: 30px;
+}
+
+.chat-window {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 70px;
+    border-radius: 5px;
+}
+
+.chat-window .chat-header {
+    text-align: center;
+    height: 10%;
+}
+
+.chat-window .chat-input {
+    padding: 5px;
+    height: 10%;
+}
+
+.chat-window .chat-input input {
+    width: 100%;
+}
+
+.chat-window .chat-display {
+    width: 100%;
+    overflow: auto;
+    height: 80%;
+} 
+
+.chat-window .chat-display ul {
+    list-style: none;
+    padding-left: 10px;
+}
+
+.chat-window .chat-display ul li {
+    display: flex;
+    flex-direction: row;
+}
+
+.chat-window .chat-display ul li .msg {
+    padding-left: 5px;
+    opacity: 0.8;
 }

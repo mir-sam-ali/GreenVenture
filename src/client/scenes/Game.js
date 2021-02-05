@@ -4,7 +4,7 @@ import StateMachine from '../statemachine/StateMachine';
 //import ClientMessage from "../../ClientMessage"
 
 const dicePositionsOffset = [
-    {x:400,y:200},
+    {x:-270,y:335},
     {x:-400,y:200},
     {x:-400,y:-200},
     {x:400,y:-200},
@@ -105,7 +105,7 @@ export default class Game extends Phaser.Scene
         } 
 
 
-        const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6').setInteractive();
+        const dice=this.add.sprite(cx-dicePositionsOffset[0].x, cy-dicePositionsOffset[0].y, 'die-image-6').setInteractive();
         dice.setScale(0.8);
         this.dice=dice;
 
