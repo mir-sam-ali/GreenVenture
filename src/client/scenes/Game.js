@@ -10,6 +10,9 @@ const dicePositionsOffset = [
     {x:400,y:-200},
 ]
 
+const indexToColorMapping=["Blue","Green","Purple","Orange","Yellow"]
+const colors=["#6ED3F7","#5DEA53","#E5C8FF","#ED5F0D","#EDDE0C"]
+
 
 const ServerEvents= new Phaser.Events.EventEmitter();
 
@@ -17,11 +20,14 @@ const ServerEvents= new Phaser.Events.EventEmitter();
 export default class Game extends Phaser.Scene
 {
     piecesForPlayer = {};
+    
 
 	constructor()
 	{
         super('game')
         this.diceRollAnimationAccumulator=0;
+        this.playerIndex=-1; // Client's Index
+
         
     }
     
@@ -96,8 +102,18 @@ export default class Game extends Phaser.Scene
             //     }
                 
             // })
-            console.log(state);
+            //console.log(state);
             this.handleInitialState(state, cx, cy);
+            const text = this.add.text(350, 40,`It's ${indexToColorMapping[state.currentPlayerTurnIndex]} Player's Turn`, {
+                fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif',
+                // @ts-ignore
+                fontSize:'30px',
+                color:colors[state.currentPlayerTurnIndex],
+                // fill: "#ff0044",
+                align: "center"
+            });
+            this.text = text;
+        
             this.stateMachine.setState("wait-for-dice-roll");
         })
             
@@ -111,12 +127,12 @@ export default class Game extends Phaser.Scene
 
 
         this.room.state.playerStates.onAdd = (item) => {
-            console.log("onAdd func", item);
+            //console.log("onAdd func", item);
             this.initializePlayerState(item, cx, cy);
         } 
 
         this.room.state.playerStates.onRemove = (item) => {
-            console.log("onRemove func", item);
+            //console.log("onRemove func", item);
             const pieces = this.piecesForPlayer[item.id];
             if(!pieces) {
                 return 
@@ -130,14 +146,24 @@ export default class Game extends Phaser.Scene
         this.dice=dice;
 
         
+    
 
+        // @ts-ignore
         dice.on('pointerdown', (pointer)=> {
 
             //console.log(this)
-            this.stateMachine.setState('dice-roll');
+            if(this.room.state.currentPlayerTurnIndex===this.playerIndex)
+                this.stateMachine.setState('dice-roll');
     
         });
+
+        console.log("Here",this.room.state);
+
        
+        // @ts-ignore
+        //text.anchor.setTo(0.5, 0.5);
+       
+        // @ts-ignore
         this.room.onMessage('*',(type,message)=>{
             //console.log(type);
             ServerEvents.emit("DiceRollResult",message);
@@ -152,13 +178,15 @@ export default class Game extends Phaser.Scene
 
     }
 
+    // @ts-ignore
     update(t,dt){
         this.stateMachine.update(dt);
     }
 
     handleDiceRollEnter(){
            
-
+            console.log(this.room.state.currentPlayerTurnIndex,this.playerIndex)
+            if(this.room.state.currentPlayerTurnIndex===this.playerIndex){
             this.room.send("DiceRoll");
             //console.log(this.room)
 
@@ -187,12 +215,16 @@ export default class Game extends Phaser.Scene
                     
             //     })}
             // })
+        }else{
+            this.stateMachine.setState('wait-for-dice-roll');
+        }
 
     }
 
     handleInitialState (state, cx, cy) {
         // console.log(state) 
-        console.log("Handle Initial State",this.room.state.playerStates)
+        //console.log("Handle Initial State",this.room.state.playerStates)
+        // @ts-ignore
         state.playerStates.forEach((playerState, idx) => {
             // console.log(playerState);
             this.initializePlayerState(playerState, cx, cy);
@@ -200,14 +232,17 @@ export default class Game extends Phaser.Scene
     }
 
     initializePlayerState (playerState, cx, cy) {
-        console.log("Initialize Player State")
+        //console.log("Initialize Player State")
         if(! (playerState.id in  this.piecesForPlayer)) {
             this.piecesForPlayer[playerState.id] = [];
         }
 
         const idx = playerState.index;
         const playerPiecesList = this.piecesForPlayer[playerState.id];
-
+        if(playerState.id===this.room.sessionId){
+            console.log(idx,playerState.id);
+            this.playerIndex=idx;
+        }
         const newPiece = this.createPiece(idx, cx, cy);
         if(!newPiece) {
             return
@@ -230,11 +265,17 @@ export default class Game extends Phaser.Scene
         
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
+        this.room.state.currentPlayerTurnIndex+=1;
+        if(this.room.state.currentPlayerTurnIndex==this.room.state.playerStates.length){
+            this.room.state.currentPlayerTurnIndex=0;
+        }
+        this.text.setText(`It's ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]} Player's Turn`);
+        this.text.setColor(colors[this.room.state.currentPlayerTurnIndex]);
     }
 
     handleWaitForDiceRoll(){
         ServerEvents.once("DiceRollResult",(message)=>{
-            console.log(message);
+            //console.log(message);
             this.room.state.lastDiceValue=message;
 
             this.time.delayedCall(1000,()=>{

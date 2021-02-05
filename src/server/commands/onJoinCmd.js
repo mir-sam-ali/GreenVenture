@@ -6,9 +6,9 @@ module.exports.OnJoinCommand = class OnJoinCommand extends Command {
     execute({ sessionId })
     {
         const index = this.state.playerStates.length;
-        console.log(sessionId, index);
+        //console.log(sessionId, index);
         this.state.playerStates.push(new PlayerState(sessionId, index));
-        console.log(this.state.playerStates);
+        //console.log(this.state.playerStates);
     }
 
 }

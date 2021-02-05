@@ -14,6 +14,7 @@ module.exports.GameRoom = class GameRoom extends Room {
         this.dispatcher = new Dispatcher(this);
         
         this.maxClients = 5;
+    
     }
    
 
@@ -27,16 +28,22 @@ module.exports.GameRoom = class GameRoom extends Room {
 
         this.onMessage("DiceRoll",(client)=>{
             const value=randomInt(1,7);
-            
+            console.log("DiceRoll",this.state.currentPlayerTurnIndex)
             this.state.lastDiceValue=value
             this.broadcast("DiceRollResult",value);
             // console.log(this.state)
             // console.log(`dice roll: ${client.sessionId}`)
         })
+
+        // this.onMessage("UpdatePlayerTurn",(client,newTurn)=>{
+        //     console.log(newTurn);
+        //     this.state.currentPlayerTurnIndex=newTurn;
+        // })
        
     }
 
     onJoin (client, options) {
+        console.log(this.state.currentPlayerTurnIndex)
         this.dispatcher.dispatch(new OnJoinCommand(), {
             sessionId: client.sessionId
         })

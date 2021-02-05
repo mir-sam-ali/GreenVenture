@@ -34,6 +34,8 @@ class GameRoomState extends Schema {
     constructor(){
         super();
         this.lastDiceValue=0;
+        this.currentPlayerTurnIndex=0;
+
         this.mySynchronizedProperty = "Hello World";
         this.playerStates=new ArraySchema();
     }
@@ -49,6 +51,7 @@ class GameRoomState extends Schema {
 schema.defineTypes(GameRoomState, {
     playerStates: [ PlayerState ],
     lastDiceValue: "number",
+    currentPlayerTurnIndex:"number",
 });
 
 module.exports = {
