@@ -103,12 +103,12 @@ export default class Game extends Phaser.Scene
         })
             
         this.room.state.playerStates.onAdd = (item) => {
-            console.log("onAdd func", item);
+            // console.log("onAdd func", item);
             this.initializePlayerState(item, cx, cy);
         } 
 
         this.room.state.playerStates.onRemove = (item) => {
-            console.log("onRemove func", item);
+            // console.log("onRemove func", item);
             const pieces = this.piecesForPlayer[item.id];
             if(!pieces) {
                 return 
@@ -147,7 +147,7 @@ export default class Game extends Phaser.Scene
 
     handleDiceRollEnter(){
            
-            console.log(this.room.state.currentPlayerTurnIndex,this.playerIndex)
+            // console.log(this.room.state.currentPlayerTurnIndex,this.playerIndex)
             if(this.room.state.currentPlayerTurnIndex===this.playerIndex){
             this.room.send("DiceRoll");
             //console.log(this.room)
@@ -182,7 +182,7 @@ export default class Game extends Phaser.Scene
     }
 
     initializePlayerState (playerState, cx, cy) {
-        console.log("Initialize Player State ",playerState)
+        //console.log("Initialize Player State ",playerState)
         
         if(! (playerState.id in  this.piecesForPlayer)) {
             this.piecesForPlayer[playerState.id] = null;
@@ -199,7 +199,7 @@ export default class Game extends Phaser.Scene
             this.playerIndex=idx;
         }
         const newPiece = this.createPiece(idx, cx, cy);
-        console.log("Piece",newPiece);
+        //console.log("Piece",newPiece);
         if(!newPiece) {
             return
         }
@@ -231,13 +231,16 @@ export default class Game extends Phaser.Scene
         this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
         // this.text.setColor(colors[next_turn]);
 
-        console.log(this.room.state.lastDiceValue);
+        //console.log(this.room.state.lastDiceValue);
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
         
     }
 
     handleWaitForDiceRoll(){
+        this.time.delayedCall(1000,()=>{
+            this.syncMyGame();
+        })
         ServerEvents.once("DiceRollResult",(message)=>{
             //console.log(message);
             this.room.state.lastDiceValue=message;
@@ -250,7 +253,7 @@ export default class Game extends Phaser.Scene
 
         ServerEvents.once("NewPlayerPosition",(message)=>{
                 
-            console.log(message);
+            //console.log(message);
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('dice-roll-finish');
             
@@ -264,7 +267,7 @@ export default class Game extends Phaser.Scene
 
     handleWaitForPlayerMovement(){
         ServerEvents.once("NewPlayerPosition",(message)=>{                
-            console.log(message);
+            //console.log(message);
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('dice-roll-finish');            
         })
@@ -314,9 +317,27 @@ export default class Game extends Phaser.Scene
         }
 
         const piece=this.piecesForPlayer[id];
-        console.log(BoardOffsetsX[x],BoardOffsetsY[y]);
-        piece.setPosition(this.cx+BoardOffsetsX[x],this.cy+BoardOffsetsY[y]);
+        //console.log(BoardOffsetsX[x],BoardOffsetsY[y]);
+        piece.setPosition(this.cx+BoardOffsetsX[x],this.cy+BoardOffsetsY[y]+index*3);
 
+    }
+
+
+    syncMyGame(){
+
+        this.room.state.playerStates.forEach((playerState, idx) => {
+            //console.log("Here",playerState);
+
+            this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
+        });
+        //console.log(this.room.state.currentPlayerTurnIndex);
+        
+        this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
+        // this.text.setColor(colors[next_turn]);
+
+        console.log("Dice",this.room.state.lastDiceValue);
+        if(this.room.state.lastDiceValue>0)
+            this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
     }
 
 }
