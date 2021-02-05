@@ -16,6 +16,9 @@ const colors=["#6ED3F7","#5DEA53","#E5C8FF","#ED5F0D","#EDDE0C"]
 
 const ServerEvents= new Phaser.Events.EventEmitter();
 
+const BoardOffsetsX=[-265,-205,-145,-85,-25,30,90,150,210,270];
+
+const BoardOffsetsY=[-270,-210,-150,-90,-30,30,90,150,210,270];
 
 export default class Game extends Phaser.Scene
 {
@@ -77,6 +80,8 @@ export default class Game extends Phaser.Scene
         const {width,height} = this.scale;
         const cx = width*0.5;
         const cy = height*0.5;
+        this.cx=cx;
+        this.cy=cy;
         const board = this.add.image(width*0.5,height*0.5,"board");
         board.setScale(0.36, 0.36);
 
@@ -85,6 +90,7 @@ export default class Game extends Phaser.Scene
         // console.log("connected to room:", room.name,room.sessionId);
 
         room.onStateChange.once(state=>{
+            console.log(state);
             this.handleInitialState(state, cx, cy);
             const text = this.add.text(cx-290, cy-350,`Current Turn: ${indexToColorMapping[state.currentPlayerTurnIndex]}`, {
                 fontFamily: '"Paytone one", san-serif',
@@ -176,23 +182,31 @@ export default class Game extends Phaser.Scene
     }
 
     initializePlayerState (playerState, cx, cy) {
-        //console.log("Initialize Player State")
+        console.log("Initialize Player State ",playerState)
+        
         if(! (playerState.id in  this.piecesForPlayer)) {
-            this.piecesForPlayer[playerState.id] = [];
+            this.piecesForPlayer[playerState.id] = null;
+        }
+        if(this.piecesForPlayer[playerState.id] !==null){
+            // Piece already in Board
+            return;
         }
 
         const idx = playerState.index;
-        const playerPiecesList = this.piecesForPlayer[playerState.id];
+        
         if(playerState.id===this.room.sessionId){
             console.log(idx,playerState.id);
             this.playerIndex=idx;
         }
         const newPiece = this.createPiece(idx, cx, cy);
+        console.log("Piece",newPiece);
         if(!newPiece) {
             return
         }
-
-        playerPiecesList.push(newPiece);
+        
+        this.piecesForPlayer[playerState.id] = newPiece;
+        
+        this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
     }
 
     handleDiceRollUpdate(dt){
@@ -216,6 +230,8 @@ export default class Game extends Phaser.Scene
 
         this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
         // this.text.setColor(colors[next_turn]);
+
+        console.log(this.room.state.lastDiceValue);
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
         
@@ -235,6 +251,7 @@ export default class Game extends Phaser.Scene
         ServerEvents.once("NewPlayerPosition",(message)=>{
                 
             console.log(message);
+            this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('dice-roll-finish');
             
         })
@@ -248,6 +265,7 @@ export default class Game extends Phaser.Scene
     handleWaitForPlayerMovement(){
         ServerEvents.once("NewPlayerPosition",(message)=>{                
             console.log(message);
+            this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('dice-roll-finish');            
         })
     }
@@ -256,7 +274,7 @@ export default class Game extends Phaser.Scene
         let p;
         switch(idx){
             case 0:
-                p = this.add.image(cx-253,cy-270, "blue");
+                p = this.add.image(cx-265,cy-270, "blue");
                 break;
             case 1:
                 p = this.add.image(cx-258,cy-270, "green");
@@ -273,6 +291,32 @@ export default class Game extends Phaser.Scene
         };
         p.setScale(0.6);
         return p;
+    }
+
+
+    updatePlayerAutomobilePosition(index,id,tilePosition){
+        let x=0,y=0;
+        if(tilePosition >=0 && tilePosition<=9){
+            x=tilePosition;
+            y=0;
+        }
+        else if(tilePosition >9 && tilePosition<=18){
+            x=9;
+            y=tilePosition-9;
+        }
+        else if(tilePosition >18 && tilePosition<=27){
+            y=9;
+            x=27-tilePosition;
+        }
+        else {
+            x=0;
+            y=36-tilePosition;
+        }
+
+        const piece=this.piecesForPlayer[id];
+        console.log(BoardOffsetsX[x],BoardOffsetsY[y]);
+        piece.setPosition(this.cx+BoardOffsetsX[x],this.cy+BoardOffsetsY[y]);
+
     }
 
 }

@@ -24,7 +24,7 @@ module.exports.GameRoom = class GameRoom extends Room {
 
         this.onMessage("DiceRoll",(client)=>{
             const value=randomInt(1,7);
-            // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
+            console.log("DiceRoll",value)
             this.state.lastDiceValue=value
 
             setTimeout(()=>{                
@@ -50,6 +50,7 @@ module.exports.GameRoom = class GameRoom extends Room {
             const playerIndex=message.index;
             let playerState=this.state.playerStates[playerIndex];
             let offset=this.state.lastDiceValue;
+            console.log(offset);
 
             let newPosition=playerState.piece.tilePosition+offset;
             if(newPosition>=36){
@@ -63,7 +64,7 @@ module.exports.GameRoom = class GameRoom extends Room {
             if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
                 this.state.currentPlayerTurnIndex=0;
             }
-            this.broadcast("NewPlayerPosition",{playerIndex,sessionId:playerState.sessionId,newPosition,});
+            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
 
         })
        
