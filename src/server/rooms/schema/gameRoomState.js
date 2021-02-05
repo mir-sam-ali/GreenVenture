@@ -6,13 +6,11 @@ const schema = require('@colyseus/schema');
 class PieceState extends Schema {
     constructor() {
         super();
-        this.x = 0;
-        this.y = 0;
+        this.tilePosition=0;
     }
 }
 schema.defineTypes(PieceState, {
-    x: "number",
-    y: "number"
+    tilePosition:"number",
 });
 
 class PlayerState extends Schema {

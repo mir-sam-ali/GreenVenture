@@ -27,14 +27,43 @@ module.exports.GameRoom = class GameRoom extends Room {
             // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
             this.state.lastDiceValue=value
 
-            setTimeout(()=>{
-                
-                this.state.currentPlayerTurnIndex+=1;
-                if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
-                    this.state.currentPlayerTurnIndex=0;
-                }
+            setTimeout(()=>{                
                 this.broadcast("DiceRollResult",value);
             },1000);
+
+        })
+
+        this.onMessage("UpdatePosition",(client,message)=>{
+            // const value=randomInt(1,7);
+            // // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
+            // this.state.lastDiceValue=value
+
+            // setTimeout(()=>{
+                
+            //     //this.state.currentPlayerTurnIndex+=1;
+            //     if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
+            //         this.state.currentPlayerTurnIndex=0;
+            //     }
+            //     this.broadcast("DiceRollResult",value);
+            // },1000);
+
+            const playerIndex=message.index;
+            let playerState=this.state.playerStates[playerIndex];
+            let offset=this.state.lastDiceValue;
+
+            let newPosition=playerState.piece.tilePosition+offset;
+            if(newPosition>=36){
+                newPosition=newPosition-36;
+            }
+
+            playerState.piece.tilePosition=newPosition;
+
+            this.state.currentPlayerTurnIndex+=1;
+           
+            if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
+                this.state.currentPlayerTurnIndex=0;
+            }
+            this.broadcast("NewPlayerPosition",{playerIndex,sessionId:playerState.sessionId,newPosition,});
 
         })
        

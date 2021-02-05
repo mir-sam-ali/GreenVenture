@@ -44,6 +44,13 @@ export default class Game extends Phaser.Scene
                 onEnter: this.handleDiceRollEnter,
                 onUpdate: this.handleDiceRollUpdate 
             })
+            .addState('player-movement',{
+                onEnter: this.handlePlayerMovementEnter,
+                //onUpdate: this.handlePlayerMovementUpdate,
+            })
+            .addState('wait-for-player-movement',{
+                onEnter: this.handleWaitForPlayerMovement,
+            })
             .addState('dice-roll-finish',{
                 onEnter: this.handleDiceRollFinishEnter,
             })
@@ -116,11 +123,14 @@ export default class Game extends Phaser.Scene
     
         });
 
-        console.log("Here",this.room.state);
+        
 
         this.room.onMessage('*',(type,message)=>{
             //console.log(type);
-            ServerEvents.emit("DiceRollResult",message);
+            if(type=="DiceRollResult")
+                ServerEvents.emit("DiceRollResult",message);
+            else if(type=="NewPlayerPosition")
+                ServerEvents.emit("NewPlayerPosition",message);
         })
     }
 
@@ -145,7 +155,7 @@ export default class Game extends Phaser.Scene
             ServerEvents.once("DiceRollResult",(message)=>{
                 
                 this.room.state.lastDiceValue=message;
-                this.stateMachine.setState('dice-roll-finish')
+                this.stateMachine.setState('player-movement')
                 
             })
         }
@@ -215,7 +225,30 @@ export default class Game extends Phaser.Scene
         ServerEvents.once("DiceRollResult",(message)=>{
             //console.log(message);
             this.room.state.lastDiceValue=message;
-            this.stateMachine.setState('dice-roll-finish')
+            this.stateMachine.setState('wait-for-player-movement')
+        })
+    }
+
+    handlePlayerMovementEnter(){
+        this.room.send("UpdatePosition",{index:this.playerIndex});
+
+        ServerEvents.once("NewPlayerPosition",(message)=>{
+                
+            console.log(message);
+            this.stateMachine.setState('dice-roll-finish');
+            
+        })
+
+    }
+
+    // handlePlayerMovementUpdate(dt){
+        
+    // }
+
+    handleWaitForPlayerMovement(){
+        ServerEvents.once("NewPlayerPosition",(message)=>{                
+            console.log(message);
+            this.stateMachine.setState('dice-roll-finish');            
         })
     }
 
