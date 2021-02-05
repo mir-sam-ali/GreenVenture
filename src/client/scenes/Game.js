@@ -60,8 +60,6 @@ export default class Game extends Phaser.Scene
         this.load.image("yellow","assets/sprites/player5/automobile.png")
 
         for(let i = 1;i<=6;i++){
-            //console.log(`die-image-${i}`,`Dice/dieRed_border${i}.png`)
-            // console.log(`die-image-${i}`,`Dice/dieRed_border${i}.png`)
             this.load.image(`die-image-${i}`,`assets/Dice/dieRed_border${i}.png`)
         }
     }
@@ -77,32 +75,9 @@ export default class Game extends Phaser.Scene
 
         const room = await this.client.joinOrCreate('GameRoom');
         this.room = room;
-        console.log("connected to room:", room.name,room.sessionId);
+        // console.log("connected to room:", room.name,room.sessionId);
 
         room.onStateChange.once(state=>{
-            // console.dir(state);
-            // console.log(state.playerStates);
-            // state.playerStates.forEach((playerState,idx)=>{
-            //     switch(idx){
-            //         case 0:
-            //             this.add.image(cx-253,cy-270,"blue");
-            //             break;
-            //         case 1:
-            //             this.add.image(cx-258,cy-270,"green");
-            //             break;
-            //         case 2:
-            //             this.add.image(cx-263,cy-270,"purple");
-            //             break;
-            //         case 3:
-            //             this.add.image(cx-268,cy-270,"orange");
-            //             break;
-            //         case 4:
-            //             this.add.image(cx-273,cy-270,"yellow");
-            //             break;
-            //     }
-                
-            // })
-            //console.log(state);
             this.handleInitialState(state, cx, cy);
             const text = this.add.text(350, 40,`It's ${indexToColorMapping[state.currentPlayerTurnIndex]} Player's Turn`, {
                 fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif',
@@ -117,15 +92,6 @@ export default class Game extends Phaser.Scene
             this.stateMachine.setState("wait-for-dice-roll");
         })
             
-
-        // console.log("connected to room:", row`om.name,room.sessionId);
-        // console.log("room", room.state.playerStates);
-
-        // room.onStateChange(state => {
-            
-        // })
-
-
         this.room.state.playerStates.onAdd = (item) => {
             //console.log("onAdd func", item);
             this.initializePlayerState(item, cx, cy);
@@ -145,13 +111,8 @@ export default class Game extends Phaser.Scene
         const dice=this.add.sprite(cx-dicePositionsOffset[3].x,cy-dicePositionsOffset[3].y,'die-image-6').setInteractive();
         this.dice=dice;
 
-        
-    
-
-        // @ts-ignore
         dice.on('pointerdown', (pointer)=> {
 
-            //console.log(this)
             if(this.room.state.currentPlayerTurnIndex===this.playerIndex)
                 this.stateMachine.setState('dice-roll');
     
@@ -159,23 +120,10 @@ export default class Game extends Phaser.Scene
 
         console.log("Here",this.room.state);
 
-       
-        // @ts-ignore
-        //text.anchor.setTo(0.5, 0.5);
-       
-        // @ts-ignore
         this.room.onMessage('*',(type,message)=>{
             //console.log(type);
             ServerEvents.emit("DiceRollResult",message);
         })
-        // this.room.state.onChange=(changes=>{
-        //     ServerEvents.emit('onChange',changes);
-        // })
-        
-        
-
-
-
     }
 
     // @ts-ignore
@@ -199,23 +147,11 @@ export default class Game extends Phaser.Scene
             ServerEvents.once("DiceRollResult",(message)=>{
                 
                 this.room.state.lastDiceValue=message;
-
-                
-                    this.stateMachine.setState('dice-roll-finish')
+                this.stateMachine.setState('dice-roll-finish')
                 
             })
-            // this.room.state.onChange=(changes=>{
-            //     console.log(changes);
-            //     if(changes && changes.length!==0){
-            //     changes.forEach(change=>{
-            //         if(change.field!=="lastDiceValue"){
-            //             return;
-            //         }
-                    
-                    
-            //     })}
-            // })
-        }else{
+        }
+        else{
             this.stateMachine.setState('wait-for-dice-roll');
         }
 
@@ -279,31 +215,31 @@ export default class Game extends Phaser.Scene
         ServerEvents.once("DiceRollResult",(message)=>{
             //console.log(message);
             this.room.state.lastDiceValue=message;
-
-            
-                this.stateMachine.setState('dice-roll-finish')
-            
+            this.stateMachine.setState('dice-roll-finish')
         })
     }
 
     createPiece (idx, cx, cy) {
+        let p;
         switch(idx){
             case 0:
-                return this.add.image(cx-253,cy-270, "blue");
-                
+                p = this.add.image(cx-253,cy-270, "blue");
+                break;
             case 1:
-                return this.add.image(cx-258,cy-270, "green");
-                
+                p = this.add.image(cx-258,cy-270, "green");
+                break;
             case 2:
-                return this.add.image(cx-263,cy-270, "purple");
-                
+                p = this.add.image(cx-263,cy-270, "purple");
+                break;
             case 3:
-                return this.add.image(cx-268,cy-270, "orange");
-                
+                p = this.add.image(cx-268,cy-270, "orange");
+                break;
             case 4:
-                return this.add.image(cx-273,cy-270, "yellow");
-                
+                p = this.add.image(cx-273,cy-270, "yellow");
+                break;
         };
+        p.setScale(0.6);
+        return p;
     }
 
 }

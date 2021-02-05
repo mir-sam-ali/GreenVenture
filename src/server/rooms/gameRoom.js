@@ -20,15 +20,10 @@ module.exports.GameRoom = class GameRoom extends Room {
 
     onCreate (client, options) {
         this.setState(new GameRoomState());
-        // this.onMessage("keydown",(client,message)=>{
-        //     this.broadcast('keydown',message,{
-        //         except:client,
-        //     })
-        // })
 
         this.onMessage("DiceRoll",(client)=>{
             const value=randomInt(1,7);
-            console.log("DiceRoll",this.state.currentPlayerTurnIndex)
+            // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
             this.state.lastDiceValue=value
 
             setTimeout(()=>{
@@ -40,20 +35,12 @@ module.exports.GameRoom = class GameRoom extends Room {
                 this.broadcast("DiceRollResult",value);
             },1000);
 
-            
-            // console.log(this.state)
-            // console.log(`dice roll: ${client.sessionId}`)
         })
-
-        // this.onMessage("UpdatePlayerTurn",(client,newTurn)=>{
-        //     console.log(newTurn);
-        //     this.state.currentPlayerTurnIndex=newTurn;
-        // })
        
     }
 
     onJoin (client, options) {
-        console.log(this.state.currentPlayerTurnIndex)
+        // console.log(this.state.currentPlayerTurnIndex)
         this.dispatcher.dispatch(new OnJoinCommand(), {
             sessionId: client.sessionId
         })
