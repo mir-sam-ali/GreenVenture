@@ -200,9 +200,9 @@ export default class Game extends Phaser.Scene
                 
                 this.room.state.lastDiceValue=message;
 
-                this.time.delayedCall(1000,()=>{
+                
                     this.stateMachine.setState('dice-roll-finish')
-                })
+                
             })
             // this.room.state.onChange=(changes=>{
             //     console.log(changes);
@@ -262,15 +262,17 @@ export default class Game extends Phaser.Scene
     }
 
     handleDiceRollFinishEnter(){
-        
+        let prev_turn=this.room.state.currentPlayerTurnIndex;
+        let next_turn=prev_turn+1;
+        console.log(prev_turn);
+        if(prev_turn==(this.room.state.playerStates.length-1)){
+            next_turn=0;
+        }
+        this.text.setText(`It's ${indexToColorMapping[next_turn]} Player's Turn`);
+        this.text.setColor(colors[next_turn]);
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
-        this.room.state.currentPlayerTurnIndex+=1;
-        if(this.room.state.currentPlayerTurnIndex==this.room.state.playerStates.length){
-            this.room.state.currentPlayerTurnIndex=0;
-        }
-        this.text.setText(`It's ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]} Player's Turn`);
-        this.text.setColor(colors[this.room.state.currentPlayerTurnIndex]);
+        
     }
 
     handleWaitForDiceRoll(){
@@ -278,9 +280,9 @@ export default class Game extends Phaser.Scene
             //console.log(message);
             this.room.state.lastDiceValue=message;
 
-            this.time.delayedCall(1000,()=>{
+            
                 this.stateMachine.setState('dice-roll-finish')
-            })
+            
         })
     }
 

@@ -30,7 +30,17 @@ module.exports.GameRoom = class GameRoom extends Room {
             const value=randomInt(1,7);
             console.log("DiceRoll",this.state.currentPlayerTurnIndex)
             this.state.lastDiceValue=value
-            this.broadcast("DiceRollResult",value);
+
+            setTimeout(()=>{
+                
+                this.state.currentPlayerTurnIndex+=1;
+                if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
+                    this.state.currentPlayerTurnIndex=0;
+                }
+                this.broadcast("DiceRollResult",value);
+            },1000);
+
+            
             // console.log(this.state)
             // console.log(`dice roll: ${client.sessionId}`)
         })
