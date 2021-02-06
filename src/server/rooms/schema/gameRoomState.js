@@ -91,7 +91,7 @@ schema.defineTypes(IndustryDetails, {
 
 
 class IndustryState extends Schema {
-    constructor(type, name, level, income, cc, tile) {
+    constructor(type, name, level, income, cc, tile,industryBuyUpgradeCost) {
         super();
 
         this.type = type;
@@ -100,15 +100,17 @@ class IndustryState extends Schema {
         this.income = income;
         this.cc = cc;
         this.tile = tile;
+        this.industryBuyUpgradeCost=industryBuyUpgradeCost; // Store Upgrade costs and level details
     }
 }
 schema.defineTypes(IndustryState, {
     type: "string", 
     name: "string", 
-    level: "string", 
+    level: "number", 
     income: "string",
     cc: "string", 
-    tile: "string"
+    tile: "string",
+    industryDetails:IndustryBuyUpgradeCost
 });
 
 class AutomobileState extends Schema {

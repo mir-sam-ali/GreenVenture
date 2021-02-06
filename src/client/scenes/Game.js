@@ -20,6 +20,15 @@ const BoardOffsetsX=[-265,-205,-145,-85,-25,30,90,150,210,270];
 
 const BoardOffsetsY=[-270,-210,-150,-90,-30,30,90,150,210,270];
 
+const regionToIndustryIndexMapping={
+    "urban":[0,1],
+    "mines":[2,3],
+    "farms":[4,5],
+    "rivers":[6,7],
+    "forest":[8,9],
+    "hills":[10,11]
+}
+
 export default class Game extends Phaser.Scene
 {
     piecesForPlayer = {};
@@ -189,7 +198,7 @@ export default class Game extends Phaser.Scene
         //     }
         // })
 
-        
+        this.displayMessage(["The season is in your favour."," Timely rainfall has irrigated the farmlands","your industry owns, throwing away the", "need to manually irrigate them using machines."])
     }
 
     // @ts-ignore
@@ -326,26 +335,32 @@ export default class Game extends Phaser.Scene
         if(this.currentPosition===1 || this.currentPosition===33 || this.currentPosition===34){
             // Forest Action
             console.log("Forest");
+            this.buildUpgradeIndustry("Forest",this.currentPosition);
         }
         else if(this.currentPosition===5 || this.currentPosition===6 || this.currentPosition===8){
             // City Action
             console.log("City");
+            this.buildUpgradeIndustry("Urban",this.currentPosition);
         }
         else if(this.currentPosition===12 || this.currentPosition===14 || this.currentPosition===15){
             // Hills Action
             console.log("Hills");
+            this.buildUpgradeIndustry("Hills",this.currentPosition);
         }
         else if(this.currentPosition===19 || this.currentPosition===20 || this.currentPosition===22){
             // River Action
             console.log("River");
+            this.buildUpgradeIndustry("River",this.currentPosition);
         }
         else if(this.currentPosition===26 || this.currentPosition===25){
             // Mines Action
             console.log("Mines");
+            this.buildUpgradeIndustry("Mines",this.currentPosition);
         }
         else if(this.currentPosition===28 || this.currentPosition===29 || this.currentPosition===31){
             // Farms Action
             console.log("Farms");
+            this.buildUpgradeIndustry("Farms",this.currentPosition);
         }
         else if(this.currentPosition===35){
             // Forest Event
@@ -414,6 +429,74 @@ export default class Game extends Phaser.Scene
         
        
     }
+    buildUpgradeIndustry(region, tilePosition) {
+        const {tileOwner,industry}=this.checkStatusOfRegion(region,this.currentPosition);
+        if(tileOwner===null){
+            // No one has yet built an industry here!
+            // Build Option
+            //console.log(this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][0]],this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][1]])
+            const res=this.showDecisionForm("build",
+            {
+                region,
+                industry_1:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][0]],
+                industry_2:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][1]]
+            })
+            if(res.status){
+                // Want To Build Industry
+                this.room.send("AddIndustry",{
+                    index:this.playerIndex,
+                    industry:res.industry,
+                })
+            }else{
+                // Doesn't Want to Build Industry
+            }
+            
+        }else if(tileOwner.index===this.playerIndex){
+            // Current Player Owns the Tile
+            // Upgrade Option
+
+            if(industry.level===3){
+                //Already at highest level
+                this.displayMessage(["You Cannot Upgrade Further"]);
+            }else{
+                const res=this.showDecisionForm("upgrade",{
+                    region,
+                    industry,
+                })
+                if(res){
+                    this.room.send("UpgradeIndustry",{
+                        index:this.playerIndex,
+                        industry,
+                    })
+                }
+        }
+        }else{
+            // SomeoneElse Owns it
+            // Current Player sends rent to the owner
+            
+        }
+    }
+    displayMessage(messages) {
+        //message will be array of strings
+        const allTextObjects=[]
+        messages.forEach((message,index)=>{
+            const text1=this.add.text(this.cx-200, this.cy-200+index*20,`${message}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center",
+                color:'black'
+            });
+            allTextObjects.push(text1);
+    
+        })
+        
+        
+        this.time.delayedCall(5000,()=>{
+            allTextObjects.forEach((text)=>{
+                text.destroy();
+            })
+        })
+    }
 
     
 
@@ -433,6 +516,18 @@ export default class Game extends Phaser.Scene
         this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
         this.stateMachine.setState("wait-for-dice-roll");
         
+    }
+
+    checkStatusOfRegion(region,tilePosition){
+        this.room.state.playerStates.forEach((player)=>{
+            player.industriesOwned.forEach((industry)=>{
+                if(industry.tile===tilePosition){
+                    return {tileOwner:player,industry,};
+                }
+            })
+        })
+
+        return {tileOwner:null,industry:null};
     }
 
 
@@ -508,7 +603,7 @@ export default class Game extends Phaser.Scene
 
 
         if(type==="upgrade"){
-            const text1 = this.add.text(this.cx-200, this.cy-200,`Do you want to upgrade your ${details.industryName}?`, {
+            const text1 = this.add.text(this.cx-200, this.cy-200,`Do you want to upgrade your ${details.industry.name}?`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'18px',
                 align: "center",
@@ -519,7 +614,7 @@ export default class Game extends Phaser.Scene
 
 
 
-            const text2=this.add.text(this.cx-200, this.cy-140,`Current Level: ${details.currentLevel}`, {
+            const text2=this.add.text(this.cx-200, this.cy-140,`Current Level: ${details.industry.level}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'17px',
                 color:'#140d4f',
@@ -527,42 +622,45 @@ export default class Game extends Phaser.Scene
             });
 
 
-            const text3=this.add.text(this.cx-200, this.cy-100,`Income: ${details.currentIncome}`, {
+            const text3=this.add.text(this.cx-200, this.cy-100,`Income: ${details.industry.income}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
-            const text4=this.add.text(this.cx-200, this.cy-80,`Carbon FootPrint: ${details.currentCarbonFootprint}`, {
+            const text4=this.add.text(this.cx-200, this.cy-80,`Carbon FootPrint: ${details.industry.cc}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
 
+            const nextLevel=details.industry.level+1;
+            const nextLevelCost=details.industry.industryBuyUpgradeCost[`level${nextLevel}Cost`]
+            const nextLevelIncome=details.industry.industryBuyUpgradeCost[`level${nextLevel}Income`]
+            const nextLevelCC=details.industry.industryBuyUpgradeCost[`level${nextLevel}CC`]
 
-
-            const text5=this.add.text(this.cx-200, this.cy-20,`Next Level: ${details.nextLevel}`, {
+            const text5=this.add.text(this.cx-200, this.cy-20,`Next Level: ${nextLevel}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'17px',
                 color:'#140d4f',
                 align: "center"
             });
 
-            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${details.upgradeCost}`, {
+            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${nextLevelCost}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
-            const text7=this.add.text(this.cx-200, this.cy+40,`Income: ${details.newIncome}`, {
+            const text7=this.add.text(this.cx-200, this.cy+40,`Income: ${nextLevelIncome}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
 
-            const text8=this.add.text(this.cx-200, this.cy+60,`Carbon FootPrint: ${details.newCarbonFootprint}`, {
+            const text8=this.add.text(this.cx-200, this.cy+60,`Carbon FootPrint: ${nextLevelCC}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -934,6 +1032,7 @@ export default class Game extends Phaser.Scene
                 return false;
             })
         }
+        return null;
     }
 
 }
