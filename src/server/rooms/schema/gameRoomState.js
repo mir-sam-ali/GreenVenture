@@ -73,20 +73,22 @@ class IndustryDetails extends Schema {
             new IndustryBuyUpgradeCost("urban", "IT Industry", 20, 30, 50, 50, 70, 100, 300, 150, 50),
             new IndustryBuyUpgradeCost("urban", "Construction Industry", 30, 30, 50, 60, 80, 100, 500, 300, 100),
             new IndustryBuyUpgradeCost("mines", "Coal Industry", 30, 30, 50, 50, 80, 120, 700, 400, 150),
-            new IndustryBuyUpgradeCost("urban", "Oil Industry", 50, 60, 80, 90, 120, 150, 700, 400, 150),
+            new IndustryBuyUpgradeCost("mines", "Oil Industry", 50, 60, 80, 90, 120, 150, 700, 400, 150),
             new IndustryBuyUpgradeCost("farms", "Agriculture", 5, 20, 30, 20, 40, 60, 200, 100, 30),
             new IndustryBuyUpgradeCost("farms", "Animal Husbandry", 10, 30, 40, 30, 60, 80, 200, 100, 30),
             new IndustryBuyUpgradeCost("rivers", "Fisheries", 5, 10, 20, 30, 40, 60, 200, 100, 30),
             new IndustryBuyUpgradeCost("rivers", "Shipping Industry", 30, 60, 90, 70, 100, 170, 600, 300, 100),
             new IndustryBuyUpgradeCost("forest", "Paper", 10, 20, 40, 20, 40, 70, 400, 200, 50),
             new IndustryBuyUpgradeCost("forest", "Furniture", 20, 30, 50, 50, 70, 90, 500, 250, 100),
-            new IndustryBuyUpgradeCost("hills", "Plantation", 5, 20, 40, 15, 30, 50, 150, 50, 30)
+            new IndustryBuyUpgradeCost("hills", "Plantation", 5, 20, 40, 15, 30, 50, 150, 50, 30),
+            new IndustryBuyUpgradeCost("hills", "WindMill", 5, 20, 40, 15, 30, 50, 150, 50, 30)
         );
     }
 }
 schema.defineTypes(IndustryDetails, {
     industries: [IndustryBuyUpgradeCost]
 });
+
 
 class IndustryState extends Schema {
     constructor(type, name, level, income, cc, tile) {

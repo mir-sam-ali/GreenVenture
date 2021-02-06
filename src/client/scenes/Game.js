@@ -30,6 +30,7 @@ export default class Game extends Phaser.Scene
         super('game')
         this.diceRollAnimationAccumulator=0;
         this.playerIndex=-1; // Client's Index
+        this.currentPosition=0;
 
         
     }
@@ -54,6 +55,13 @@ export default class Game extends Phaser.Scene
             .addState('wait-for-player-movement',{
                 onEnter: this.handleWaitForPlayerMovement,
             })
+            .addState('player-action',{
+                onEnter: this.handlePlayerActionEnter,
+                onUpdate: this.handlePlayerActionUpdate,
+            })
+            .addState('wait-for-player-action',{
+                onEnter:this.handleWaitForPlayerActionEnter,
+            })
             .addState('dice-roll-finish',{
                 onEnter: this.handleDiceRollFinishEnter,
             })
@@ -68,6 +76,9 @@ export default class Game extends Phaser.Scene
         this.load.image("purple","assets/sprites/player3/automobile.png")
         this.load.image("orange","assets/sprites/player4/automobile.png")
         this.load.image("yellow","assets/sprites/player5/automobile.png")
+        this.load.image("build_button","assets/build.png")
+        this.load.image("cancel_button","assets/cancel.png")
+        this.load.image("upgrade_button","assets/upgrade.png")
 
         for(let i = 1;i<=6;i++){
             this.load.image(`die-image-${i}`,`assets/Dice/dieRed_border${i}.png`)
@@ -88,6 +99,8 @@ export default class Game extends Phaser.Scene
         const room = await this.client.joinOrCreate('GameRoom');
         this.room = room;
         // console.log("connected to room:", room.name,room.sessionId);
+
+
 
         room.onStateChange.once(state=>{
             // console.log("[initialstate]", state);
@@ -145,6 +158,38 @@ export default class Game extends Phaser.Scene
             else if(type=="NewPlayerPosition")
                 ServerEvents.emit("NewPlayerPosition",message);
         })
+
+        // this.showDecisionForm("build",{
+        //     region:"Forest",
+        //     industry_1:{
+        //         name:"IT Industry",
+        //         baseCost:"200",
+        //         baseIncome:"200",
+        //         baseCC:"200",
+        //     },
+        //     industry_2:{
+        //         name:"Shipping Industry",
+        //         baseCost:"200",
+        //         baseIncome:"200",
+        //         baseCC:"200",
+        //     }
+        // });
+
+        // this.showDecisionForm("automobile_upgrade",{
+        //     currentLevel:{
+        //         type:1,
+        //         carbonCost:"200",
+        //         fuelCost:"200",
+        //     },
+        //     nextLevel:{
+        //         type:2,
+        //         carbonCost:"200",
+        //         fuelCost:"200",
+        //         upgradeCost:"200",
+        //     }
+        // })
+
+        
     }
 
     // @ts-ignore
@@ -226,23 +271,7 @@ export default class Game extends Phaser.Scene
             
     }
 
-    handleDiceRollFinishEnter(){
-        let prev_turn=this.room.state.currentPlayerTurnIndex;
-        let next_turn=prev_turn+1;
-        console.log(prev_turn);
-
-        if(prev_turn==(this.room.state.playerStates.length-1)){
-            next_turn=0;
-        }
-
-        this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
-        // this.text.setColor(colors[next_turn]);
-
-        //console.log(this.room.state.lastDiceValue);
-        this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
-        this.stateMachine.setState("wait-for-dice-roll");
-        
-    }
+   
 
     handleWaitForDiceRoll(){
         this.time.delayedCall(1000,()=>{
@@ -261,23 +290,167 @@ export default class Game extends Phaser.Scene
         ServerEvents.once("NewPlayerPosition",(message)=>{
                 
             //console.log(message);
+            this.currentPosition=message.newPosition;
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
-            this.stateMachine.setState('dice-roll-finish');
+            this.stateMachine.setState('player-action');
             
         })
 
     }
 
-    // handlePlayerMovementUpdate(dt){
-        
-    // }
+
 
     handleWaitForPlayerMovement(){
         ServerEvents.once("NewPlayerPosition",(message)=>{                
             //console.log(message);
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
-            this.stateMachine.setState('dice-roll-finish');            
+            this.stateMachine.setState('wait-for-player-action');            
         })
+    }
+
+    handlePlayerActionEnter(){
+        // const newPosition=this.room.state.playerStates[this.playerIndex].piece.tilePosition;
+        this.executeAction();
+        this.showDecisionForm();
+    }
+
+    handlePlayerActionUpdate(dt){
+        
+    }
+
+    handleWaitForPlayerActionEnter(){
+        
+    }
+
+    executeAction(){
+        if(this.currentPosition===1 || this.currentPosition===33 || this.currentPosition===34){
+            // Forest Action
+            console.log("Forest");
+        }
+        else if(this.currentPosition===5 || this.currentPosition===6 || this.currentPosition===8){
+            // City Action
+            console.log("City");
+        }
+        else if(this.currentPosition===12 || this.currentPosition===14 || this.currentPosition===15){
+            // Hills Action
+            console.log("Hills");
+        }
+        else if(this.currentPosition===19 || this.currentPosition===20 || this.currentPosition===22){
+            // River Action
+            console.log("River");
+        }
+        else if(this.currentPosition===26 || this.currentPosition===25){
+            // Mines Action
+            console.log("Mines");
+        }
+        else if(this.currentPosition===28 || this.currentPosition===29 || this.currentPosition===31){
+            // Farms Action
+            console.log("Farms");
+        }
+        else if(this.currentPosition===35){
+            // Forest Event
+            console.log("Forest Event");
+        }
+        else if(this.currentPosition===7){
+            // City Event
+            console.log("City Event");
+        }
+        else if(this.currentPosition===13){
+            // Hills Event
+            console.log("Hills Event");
+        }
+        else if(this.currentPosition===21){
+            // River Event
+            console.log("River Event");
+        }
+        else if(this.currentPosition===24){
+            // Mines Event
+            console.log("Mines Event");
+        }
+        else if(this.currentPosition===30){
+            // Mines Event
+            console.log("Farms Event");
+        }
+        else if(this.currentPosition===2){
+            //Pay Employees
+            console.log("Pay Employees");
+        }
+        else if(this.currentPosition===3){
+            //Automobile Upgrade
+            console.log("Automobile Upgrade");
+        }
+        else if(this.currentPosition===16 || this.currentPosition===32){
+            //Fuel Point
+            console.log("Fuel Point");
+        }
+        else if(this.currentPosition===4 || this.currentPosition===11){
+            //Pay Tax
+            console.log("Pay Tax");
+        }
+        else if(this.currentPosition===9){
+            //Go To Jail
+            console.log("Go To Jail");
+        }
+        else if(this.currentPosition===10){
+            //Roll Again
+            console.log("Roll Again");
+        }
+        else if(this.currentPosition===17){
+            //Legal Battles
+            console.log("Legal Battles");
+        }
+        else if(this.currentPosition===18){
+            //Casino
+            console.log("Casino");
+        }
+        else if(this.currentPosition===23){
+            //Pay Employees
+            console.log("Pay Employees");
+        }
+        else if(this.currentPosition===27){
+            //Jail Visitors
+            console.log("Jail Visitors");
+        }
+        
+       
+    }
+
+    
+
+    handleDiceRollFinishEnter(){
+        let prev_turn=this.room.state.currentPlayerTurnIndex;
+        let next_turn=prev_turn+1;
+        console.log(prev_turn);
+
+        if(prev_turn==(this.room.state.playerStates.length-1)){
+            next_turn=0;
+        }
+
+        this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
+        // this.text.setColor(colors[next_turn]);
+
+        //console.log(this.room.state.lastDiceValue);
+        this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
+        this.stateMachine.setState("wait-for-dice-roll");
+        
+    }
+
+
+    syncMyGame(){
+
+        this.room.state.playerStates.forEach((playerState, idx) => {
+            //console.log("Here",playerState);
+
+            this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
+        });
+        //console.log(this.room.state.currentPlayerTurnIndex);
+        
+        this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
+        // this.text.setColor(colors[next_turn]);
+
+        console.log("Dice",this.room.state.lastDiceValue);
+        if(this.room.state.lastDiceValue>0)
+            this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
     }
 
     createPiece (idx, cx, cy) {
@@ -302,7 +475,6 @@ export default class Game extends Phaser.Scene
         p.setScale(0.6);
         return p;
     }
-
 
     updatePlayerAutomobilePosition(index,id,tilePosition){
         let x=0,y=0;
@@ -330,21 +502,438 @@ export default class Game extends Phaser.Scene
     }
 
 
-    syncMyGame(){
 
-        this.room.state.playerStates.forEach((playerState, idx) => {
-            //console.log("Here",playerState);
+    showDecisionForm(type,details){
+        //type can either be upgrade or build
 
-            this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
-        });
-        //console.log(this.room.state.currentPlayerTurnIndex);
-        
-        this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
-        // this.text.setColor(colors[next_turn]);
 
-        console.log("Dice",this.room.state.lastDiceValue);
-        if(this.room.state.lastDiceValue>0)
-            this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
+        if(type==="upgrade"){
+            const text1 = this.add.text(this.cx-200, this.cy-200,`Do you want to upgrade your ${details.industryName}?`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'18px',
+                align: "center",
+                color:'black'
+            });
+           
+
+
+
+
+            const text2=this.add.text(this.cx-200, this.cy-140,`Current Level: ${details.currentLevel}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+
+            const text3=this.add.text(this.cx-200, this.cy-100,`Income: ${details.currentIncome}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text4=this.add.text(this.cx-200, this.cy-80,`Carbon FootPrint: ${details.currentCarbonFootprint}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+
+
+            const text5=this.add.text(this.cx-200, this.cy-20,`Next Level: ${details.nextLevel}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${details.upgradeCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text7=this.add.text(this.cx-200, this.cy+40,`Income: ${details.newIncome}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+            const text8=this.add.text(this.cx-200, this.cy+60,`Carbon FootPrint: ${details.newCarbonFootprint}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+            
+
+
+
+
+
+            
+    
+            const upgradeButton = this.add.image(this.cx-80,this.cy+200,"upgrade_button").setInteractive();
+            upgradeButton.setScale(0.2);
+            upgradeButton.on('pointerover',()=>{
+                upgradeButton.setScale(0.21);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            upgradeButton.on('pointerout',()=>{
+                upgradeButton.setScale(0.2);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+    
+            upgradeButton.on('pointerdown',()=>{
+                //console.log(true)
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                
+             
+                text7.destroy();
+                text8.destroy();
+                upgradeButton.destroy();
+                cancelButton.destroy();
+                return true;
+            })
+
+
+            const cancelButton = this.add.image(this.cx+80,this.cy+200,"cancel_button").setInteractive();
+            cancelButton.setScale(0.2);
+            cancelButton.on('pointerover',()=>{
+                cancelButton.setScale(0.21);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            cancelButton.on('pointerout',()=>{
+                cancelButton.setScale(0.2);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+            cancelButton.on('pointerdown',()=>{
+                //console.log(false)
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                
+             
+                text7.destroy();
+                text8.destroy();
+                upgradeButton.destroy();
+                cancelButton.destroy();
+                
+                return false;
+            })
+        }
+        else if(type==="build"){
+            const text1=this.add.text(this.cx-200, this.cy-200,`You have arrived at ${details.region}!`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'18px',
+                align: "center",
+                color:'black'
+            });
+            const text2=this.add.text(this.cx-200, this.cy-160,`You can build one of the below industries here!`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'18px',
+                align: "center",
+                color:'black'
+            });
+           
+
+
+
+
+            const text3=this.add.text(this.cx-200, this.cy-120,`${details.industry_1.name}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+
+            const text4=this.add.text(this.cx-200, this.cy-80,`Build Cost: ${details.industry_1.baseCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text5=this.add.text(this.cx-200, this.cy-60,`Carbon FootPrint: ${details.industry_1.baseCC}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text6=this.add.text(this.cx-200, this.cy-40,`Income: ${details.industry_1.baseIncome}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const buildButton_1 = this.add.image(this.cx+100,this.cy-60,"build_button").setInteractive();
+            buildButton_1.setScale(0.15);
+            buildButton_1.on('pointerover',()=>{
+                buildButton_1.setScale(0.16);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            buildButton_1.on('pointerout',()=>{
+                buildButton_1.setScale(0.15);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+    
+            buildButton_1.on('pointerdown',()=>{
+                console.log({status:true,industry:details.industry_1})
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                buildButton_1.destroy();
+            
+                text7.destroy();
+                text8.destroy();
+                text9.destroy();
+                text10.destroy();
+                buildButton_2.destroy();
+                cancelButton.destroy();
+                return {status:true,industry:details.industry_1};
+            })
+
+
+
+
+
+            const text7=this.add.text(this.cx-200, this.cy,`${details.industry_2.name}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+
+            const text8=this.add.text(this.cx-200, this.cy+40,`Build Cost: ${details.industry_2.baseCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text9=this.add.text(this.cx-200, this.cy+60,`Carbon FootPrint: ${details.industry_2.baseCC}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text10=this.add.text(this.cx-200, this.cy+80,`Income: ${details.industry_2.baseIncome}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const buildButton_2 = this.add.image(this.cx+100,this.cy+60,"build_button").setInteractive();
+            buildButton_2.setScale(0.15);
+            buildButton_2.on('pointerover',()=>{
+                buildButton_2.setScale(0.16);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            buildButton_2.on('pointerout',()=>{
+                buildButton_2.setScale(0.15);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+    
+            buildButton_2.on('pointerdown',()=>{
+                console.log({status:true,industry:details.industry_2})
+                document.getElementById("game-canvas").style.cursor = "default";
+
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                buildButton_1.destroy();
+                text7.destroy();
+                text8.destroy();
+                text9.destroy();
+                text10.destroy();
+                buildButton_2.destroy();
+                cancelButton.destroy();
+                return {status:true,industry:details.industry_2};
+            })
+
+
+
+
+            const cancelButton = this.add.image(this.cx,this.cy+200,"cancel_button").setInteractive();
+            cancelButton.setScale(0.2);
+            cancelButton.on('pointerover',()=>{
+                cancelButton.setScale(0.21);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            cancelButton.on('pointerout',()=>{
+                cancelButton.setScale(0.2);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+            cancelButton.on('pointerdown',()=>{
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+              
+                buildButton_1.destroy();
+                text7.destroy();
+                text8.destroy();
+                text9.destroy();
+                text10.destroy();
+                buildButton_2.destroy();
+                cancelButton.destroy();
+                return {status:false};
+            })
+        }
+
+        else if(type==="automobile_upgrade"){
+            const text1 = this.add.text(this.cx-200, this.cy-200,`Do you want to upgrade your Automobile?`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'18px',
+                align: "center",
+                color:'black'
+            });
+           
+
+
+
+
+            const text2=this.add.text(this.cx-200, this.cy-140,`Current Level: ${details.currentLevel.type}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+
+            const text3=this.add.text(this.cx-200, this.cy-100,`Fuel Cost: ${details.currentLevel.fuelCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text4=this.add.text(this.cx-200, this.cy-80,`Carbon Cost: ${details.currentLevel.carbonCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+
+
+            const text5=this.add.text(this.cx-200, this.cy-20,`Next Level: ${details.nextLevel.type}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'17px',
+                color:'#140d4f',
+                align: "center"
+            });
+
+            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${details.nextLevel.upgradeCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+            const text7=this.add.text(this.cx-200, this.cy+40,`Fuel Cost: ${details.nextLevel.fuelCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+            const text8=this.add.text(this.cx-200, this.cy+60,`Carbon Cost: ${details.nextLevel.carbonCost}`, {
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            });
+
+
+            
+
+
+
+
+
+            
+    
+            const upgradeButton = this.add.image(this.cx-80,this.cy+200,"upgrade_button").setInteractive();
+            upgradeButton.setScale(0.2);
+            upgradeButton.on('pointerover',()=>{
+                upgradeButton.setScale(0.21);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            upgradeButton.on('pointerout',()=>{
+                upgradeButton.setScale(0.2);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+    
+            upgradeButton.on('pointerdown',()=>{
+                //console.log(true)
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                
+             
+                text7.destroy();
+                text8.destroy();
+                upgradeButton.destroy();
+                cancelButton.destroy();
+                return true;
+            })
+
+
+            const cancelButton = this.add.image(this.cx+80,this.cy+200,"cancel_button").setInteractive();
+            cancelButton.setScale(0.2);
+            cancelButton.on('pointerover',()=>{
+                cancelButton.setScale(0.21);
+                document.getElementById("game-canvas").style.cursor = "pointer";
+            })
+            cancelButton.on('pointerout',()=>{
+                cancelButton.setScale(0.2);
+                document.getElementById("game-canvas").style.cursor = "default";
+            })
+            cancelButton.on('pointerdown',()=>{
+                //console.log(false)
+                document.getElementById("game-canvas").style.cursor = "default";
+                text1.destroy();
+                text2.destroy();
+                text3.destroy();
+                text4.destroy();
+                text5.destroy();
+                text6.destroy();
+                
+             
+                text7.destroy();
+                text8.destroy();
+                upgradeButton.destroy();
+                cancelButton.destroy();
+                
+                return false;
+            })
+        }
     }
 
 }
