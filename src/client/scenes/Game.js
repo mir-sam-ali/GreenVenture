@@ -90,7 +90,14 @@ export default class Game extends Phaser.Scene
         // console.log("connected to room:", room.name,room.sessionId);
 
         room.onStateChange.once(state=>{
-            console.log(state);
+            // console.log("[initialstate]", state);
+            console.log("[initial players state]", state.playerStates);
+            state.playerStates.forEach(player => {
+                console.log("[automobile]", player.automobile);
+                console.log("[piece]", player.piece);
+                console.log("[industries]", player.industriesOwned);
+            })
+
             this.handleInitialState(state, cx, cy);
             const text = this.add.text(cx-290, cy-350,`Current Turn: ${indexToColorMapping[state.currentPlayerTurnIndex]}`, {
                 fontFamily: '"Paytone one", san-serif',

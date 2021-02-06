@@ -25,8 +25,8 @@ class AutomobileDetails extends Schema {
         this.automobile = new MapSchema();
 
         this.automobile.set("bs3", new AutomobileCost("bs3", 10, 0, 60));
-        this.automobile.set("bs3", new AutomobileCost("bs3", 5, 30, 30));
-        this.automobile.set("bs3", new AutomobileCost("bs3", 1, 50, 0));
+        this.automobile.set("bs4", new AutomobileCost("bs3", 5, 30, 30));
+        this.automobile.set("bs6", new AutomobileCost("bs3", 1, 50, 0));
     }
 }
 schema.defineTypes(AutomobileDetails, {
@@ -109,6 +109,21 @@ schema.defineTypes(IndustryState, {
     tile: "string"
 });
 
+class AutomobileState extends Schema {
+    constructor() {
+        super();
+        const baseAutomobile = (new AutomobileDetails()).automobile.get("bs3");
+        this.type = baseAutomobile.type;
+        this.fuelCost = baseAutomobile.fuelCost;
+        this.carbonCost = baseAutomobile.carbonCost;
+    }
+}
+schema.defineTypes(AutomobileState, {
+    type: "string", 
+    fuelCost: "number",
+    carbonCost: "number" 
+});
+
 class PieceState extends Schema {
     constructor() {
         super();
@@ -126,6 +141,7 @@ class PlayerState extends Schema {
         this.index = index;
         this.piece = new PieceState();
         this.industriesOwned = new ArraySchema();
+        this.automobile = new AutomobileState();
         // console.log(this.piece)
     }
 }
@@ -133,7 +149,8 @@ schema.defineTypes(PlayerState, {
     id: "string",
     index: "number",
     piece: PieceState,
-    industriesOwned: [IndustryState]
+    industriesOwned: [IndustryState],
+    automobile: AutomobileState
 });
 
 class GameRoomState extends Schema {
@@ -144,14 +161,17 @@ class GameRoomState extends Schema {
 
         this.mySynchronizedProperty = "Hello World";
         this.playerStates = new ArraySchema();
+        this.industryDetails = new IndustryDetails();
+        this.automobileDetails = new AutomobileDetails();
     }
     
 }
-    
 schema.defineTypes(GameRoomState, {
     playerStates: [ PlayerState ],
     lastDiceValue: "number",
     currentPlayerTurnIndex:"number",
+    industryDetails: IndustryDetails,
+    automobileDetails: AutomobileDetails
 });
 
 module.exports = {
