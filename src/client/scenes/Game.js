@@ -134,14 +134,13 @@ export default class Game extends Phaser.Scene
         } 
 
         this.room.state.playerStates.onRemove = (item) => {
-            console.log("onRemove func", item);
-            const pieces = this.piecesForPlayer[item.id];
-
-            if(!pieces) {
+            // console.log("onRemove func", item);
+            const piece = this.piecesForPlayer[item.id];
+            if(!piece) {
                 return 
             }
 
-            pieces.forEach(piece => piece.destroy());
+            piece.destroy();
         } 
 
 
@@ -239,7 +238,7 @@ export default class Game extends Phaser.Scene
 
     handleInitialState (state, cx, cy) {
         // console.log(state) 
-        //console.log("Handle Initial State",this.room.state.playerStates)
+        console.log("Handle Initial State",this.room.state.playerStates)
         // @ts-ignore
         state.playerStates.forEach((playerState, idx) => {
             // console.log(playerState);
@@ -248,7 +247,7 @@ export default class Game extends Phaser.Scene
     }
 
     initializePlayerState (playerState, cx, cy) {
-        //console.log("Initialize Player State ",playerState)
+        console.log("Initialize Player State ",playerState)
         
         if(! (playerState.id in this.piecesForPlayer)) {
             this.piecesForPlayer[playerState.id] = null;
@@ -265,14 +264,14 @@ export default class Game extends Phaser.Scene
             this.playerIndex=idx;
         }
         const newPiece = this.createPiece(idx, cx, cy);
-        //console.log("Piece",newPiece);
+        console.log("Piece",newPiece);
         if(!newPiece) {
             return
         }
         
-        this.piecesForPlayer[playerState.id] = [newPiece];
+        this.piecesForPlayer[playerState.id] = newPiece;
         
-        // this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
+        this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
     }
 
     handleDiceRollUpdate(dt){
@@ -305,7 +304,7 @@ export default class Game extends Phaser.Scene
 
         ServerEvents.once("NewPlayerPosition",(message)=>{
                 
-            //console.log(message);
+            console.log(message);
             this.currentPosition=message.newPosition;
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('player-action');
@@ -318,7 +317,7 @@ export default class Game extends Phaser.Scene
 
     handleWaitForPlayerMovement(){
         ServerEvents.once("NewPlayerPosition",(message)=>{                
-            //console.log(message);
+            console.log(message);
             this.updatePlayerAutomobilePosition(message.index,message.id,message.newPosition)
             this.stateMachine.setState('wait-for-player-action');            
         })
@@ -746,7 +745,10 @@ export default class Game extends Phaser.Scene
         return p;
     }
 
+
+
     updatePlayerAutomobilePosition(index,id,tilePosition){
+        console.log("Updating POsition",tilePosition)
         let x=0,y=0;
         if(tilePosition >=0 && tilePosition<=9){
             x=tilePosition;
@@ -765,8 +767,9 @@ export default class Game extends Phaser.Scene
             y=36-tilePosition;
         }
 
-        const piece=this.piecesForPlayer[id][3];
-        //console.log(BoardOffsetsX[x],BoardOffsetsY[y]);
+        const piece=this.piecesForPlayer[id];
+        console.log(this.piecesForPlayer);
+        console.log(BoardOffsetsX[x],BoardOffsetsY[y],piece);
 
         if(!piece){
             return;
