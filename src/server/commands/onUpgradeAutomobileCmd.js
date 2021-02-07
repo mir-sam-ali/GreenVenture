@@ -6,7 +6,7 @@ module.exports.OnUpgradeAutomobileCommand = class OnUpgradeAutomobileCommand ext
         const playerIndex = this.state.playerStates.findIndex(player => player.id === sessionId);
         let playerState = this.state.playerStates[playerIndex];
 
-        const automobile = this.state.automobileDetails[type];
+        const automobile = this.state.automobileDetails.automobile.get(type);
 
         playerState.currentIncome -= automobile.upgradeCost
 

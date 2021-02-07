@@ -288,7 +288,7 @@ export default class Game extends Phaser.Scene
    
 
     handleWaitForDiceRoll(){
-        console.log(this.room.state);
+        console.log(this.room.state.playerStates[this.playerIndex].automobile);
         this.time.delayedCall(1000,()=>{
             this.syncMyGame();
         })
@@ -527,7 +527,41 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===3){
             //Automobile Upgrade
             console.log("Automobile Upgrade");
-            this.room.send("NextTurn");
+            const player=this.room.state.playerStates[this.playerIndex];
+            if(player.automobile.type=="bs6"){
+                this.displayMessage(["You Cannot Upgrade Further"]);
+                this.room.send("NextTurn")
+            }else{
+
+                let currentLevel=null;
+                let nextLevel=null;
+
+                currentLevel=player.automobile;
+                if(currentLevel.type=="bs3"){
+                    nextLevel=this.room.state.automobileDetails.automobile.get("bs4");
+                }
+                else if(currentLevel.type=="bs4"){
+                    nextLevel=this.room.state.automobileDetails.automobile.get("bs6");
+                }
+
+                this.showDecisionForm("automobile_upgrade",{
+                                    currentLevel,
+                                    nextLevel,
+                                })
+                ServerEvents.once("player-decision-response",(res)=>{
+                    if(res){
+                        console.log(res);
+                        this.room.send("UpgradeAutomobile",{
+                            type:nextLevel.type
+                        })
+                    }else{
+                        this.room.send("NextTurn")
+                    }
+                })
+                               
+            }
+            
+            //this.room.send("NextTurn");
 
         }
         else if(this.currentPosition===16 || this.currentPosition===32){
@@ -583,7 +617,7 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===18){
             //Casino
             console.log("Casino");
-            this.room.send("NextTurn")
+            this.room.send("Casino")
         }
         else if(this.currentPosition===27){
             //Jail Visitors
@@ -689,15 +723,15 @@ export default class Game extends Phaser.Scene
     
 
     handleDiceRollFinishEnter(){
-        let prev_turn=this.room.state.currentPlayerTurnIndex;
-        let next_turn=prev_turn+1;
-        console.log(prev_turn);
+        // let prev_turn=this.room.state.currentPlayerTurnIndex;
+        // let next_turn=prev_turn+1;
+        // console.log(prev_turn);
 
-        if(prev_turn==(this.room.state.playerStates.length-1)){
-            next_turn=0;
-        }
+        // if(prev_turn==(this.room.state.playerStates.length-1)){
+        //     next_turn=0;
+        // }
 
-        this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
+        // this.text.setText(`Current Turn: ${indexToColorMapping[next_turn]}`);
         // this.text.setColor(colors[next_turn]);
 
         //console.log(this.room.state.lastDiceValue);

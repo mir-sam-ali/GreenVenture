@@ -39,12 +39,12 @@ module.exports.GameRoom = class GameRoom extends Room {
             })
         })
 
-        this.onMessage("UpdatePosition",(client, message) => {
-            this.dispatcher.dispatch(new OnUpdatePositionCommand, {
-                sessionId: client.sessionId
-            })
-            this.initializeNextTurn()
-        })
+        // this.onMessage("UpdatePosition",(client, message) => {
+        //     this.dispatcher.dispatch(new OnUpdatePositionCommand, {
+        //         sessionId: client.sessionId
+        //     })
+        //     this.initializeNextTurn()
+        // })
 
         this.onMessage("BuyIndustry", (client, message) => {
             console.log(message)
@@ -72,6 +72,7 @@ module.exports.GameRoom = class GameRoom extends Room {
         })
 
         this.onMessage("UpgradeAutomobile", (client, message) => {
+            console.log("Upgrade Automobile",message.type);
             this.dispatcher.dispatch(new OnUpgradeAutomobileCommand, {
                 sessionId: client.sessionId,
                 type: message.type
@@ -122,7 +123,7 @@ module.exports.GameRoom = class GameRoom extends Room {
             // if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
             //     this.state.currentPlayerTurnIndex=0;
             // }
-            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
+            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition});
         })
 
 

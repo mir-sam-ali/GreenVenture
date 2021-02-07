@@ -25,8 +25,8 @@ class AutomobileDetails extends Schema {
         this.automobile = new MapSchema();
 
         this.automobile.set("bs3", new AutomobileCost("bs3", 10, 0, 60));
-        this.automobile.set("bs4", new AutomobileCost("bs3", 5, 30, 30));
-        this.automobile.set("bs6", new AutomobileCost("bs3", 1, 50, 0));
+        this.automobile.set("bs4", new AutomobileCost("bs4", 5, 30, 30));
+        this.automobile.set("bs6", new AutomobileCost("bs6", 1, 50, 0));
     }
 }
 schema.defineTypes(AutomobileDetails, {
