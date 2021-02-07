@@ -550,7 +550,7 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===9){
             //Go To Jail
             console.log("Go To Jail");
-            this.room.send("GoToJail");
+            this.room.send("GoToJail",{index:this.playerIndex});
         }
         else if(this.currentPosition===10){
             //Roll Again

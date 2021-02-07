@@ -166,6 +166,12 @@ module.exports.GameRoom = class GameRoom extends Room {
         })
 
         this.onMessage("GoToJail",(client,message)=>{
+            const playerIndex=message.index;
+            let playerState=this.state.playerStates[playerIndex];
+            const newPosition=27;
+            playerState.piece.tilePosition=newPosition;
+
+            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
             this.initializeNextTurn()
         })
 
