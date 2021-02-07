@@ -134,6 +134,9 @@ module.exports.GameRoom = class GameRoom extends Room {
 
         this.onMessage("Update Currency",(client,message)=>{
             // Code For Updating Currency
+
+
+
             this.initializeNextTurn()
         })
 
@@ -144,9 +147,11 @@ module.exports.GameRoom = class GameRoom extends Room {
         this.onMessage("UpgradeIndustry",(client,message)=>{
             this.initializeNextTurn()
         })
+        
 
         this.onMessage("RollAgain",(client,message)=>{
-            this.initializeNextTurn()
+            this.state.allowTurn=true;
+            this.broadcast("AllowForNextTurn",{});
         })
 
         this.onMessage("GoToJail",(client,message)=>{
