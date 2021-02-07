@@ -152,7 +152,7 @@ export default class Game extends Phaser.Scene
         this.dice=dice;
 
         dice.on('pointerdown', (pointer)=> {
-
+            console.log(this.room.state.currentPlayerTurnIndex,this.room.state.allowTurn);
             // if(this.room.state.currentPlayerTurnIndex===this.playerIndex)
             if(this.room.state.allowTurn)
                 this.stateMachine.setState('dice-roll');
@@ -167,6 +167,10 @@ export default class Game extends Phaser.Scene
                 ServerEvents.emit("DiceRollResult",message);
             else if(type=="NewPlayerPosition")
                 ServerEvents.emit("NewPlayerPosition",message);
+            else if(type=="AllowForNextTurn"){
+                console.log("Here");
+                ServerEvents.emit("AllowForNextTurn",message);
+            }    
         })
 
         // this.showDecisionForm("build",{
@@ -223,6 +227,8 @@ export default class Game extends Phaser.Scene
             ServerEvents.once("DiceRollResult",(message)=>{
                 
                 this.room.state.lastDiceValue=message;
+                if(this.room.state.lastDiceValue>0)
+                this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
                 this.stateMachine.setState('player-movement')
                 
             })
@@ -289,6 +295,8 @@ export default class Game extends Phaser.Scene
         })
         ServerEvents.once("DiceRollResult",(message)=>{
             //console.log(message);
+            if(this.room.state.lastDiceValue>0)
+            this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
             this.room.state.lastDiceValue=message;
             this.stateMachine.setState('wait-for-player-movement')
         })
@@ -322,6 +330,12 @@ export default class Game extends Phaser.Scene
         // const newPosition=this.room.state.playerStates[this.playerIndex].piece.tilePosition;
         this.executeAction();
         this.showDecisionForm();
+        ServerEvents.once("AllowForNextTurn",(message)=>{                
+            //console.log(message);
+            console.log("Here");
+            
+            this.stateMachine.setState('dice-roll-finish');            
+        })
     }
 
     handlePlayerActionUpdate(dt){
@@ -329,7 +343,11 @@ export default class Game extends Phaser.Scene
     }
 
     handleWaitForPlayerActionEnter(){
-        
+        ServerEvents.once("AllowForNextTurn",(message)=>{                
+            console.log("Here");
+            
+            this.stateMachine.setState('dice-roll-finish');            
+        })
     }
 
     executeAction(){
@@ -499,7 +517,7 @@ export default class Game extends Phaser.Scene
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*20;            
             this.displayMessage(["You have to pay your employees.","Pay $20 for each Industry",` $${amount} is deducted from your money.`])
             
-            this.room.send("Update Currencies",{
+            this.room.send("Update Currency",{
                 money:(-amount),
                 carbonCurrency:0,
             })
@@ -507,10 +525,13 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===3){
             //Automobile Upgrade
             console.log("Automobile Upgrade");
+            this.room.send("NextTurn");
+
         }
         else if(this.currentPosition===16 || this.currentPosition===32){
             //Fuel Point
             console.log("Fuel Point");
+            this.room.send("NextTurn");
         }
         else if(this.currentPosition===4 || this.currentPosition===11){
             //Pay Tax
@@ -519,7 +540,7 @@ export default class Game extends Phaser.Scene
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*10;            
             this.displayMessage(["You have to pay your Tax.","Pay $10 for each Industry",` $${amount} is deducted from your money.`])
             
-            this.room.send("Update Currencies",{
+            this.room.send("Update Currency",{
                 money:(-amount),
                 carbonCurrency:0,
             })
@@ -527,10 +548,12 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===9){
             //Go To Jail
             console.log("Go To Jail");
+            this.room.send("GoToJail");
         }
         else if(this.currentPosition===10){
             //Roll Again
             console.log("Roll Again");
+            this.room.send("RollAgain");
 
         }
         else if(this.currentPosition===17){
@@ -540,7 +563,7 @@ export default class Game extends Phaser.Scene
                       
             this.displayMessage(["You have won a legal battle","You receive $80 as settlement."])
             
-            this.room.send("Deduct Currencies",{
+            this.room.send("Update Currency",{
                 money:80,
                 carbonCurrency:0,
             })
@@ -548,14 +571,21 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===18){
             //Casino
             console.log("Casino");
+            this.room.send("NextTurn")
         }
         else if(this.currentPosition===27){
             //Jail Visitors
             console.log("Jail Visitors");
+            this.room.send("NextTurn")
         }
         
        
     }
+
+
+
+
+
     buildUpgradeIndustry(region, tilePosition) {
         const {tileOwner,industry}=this.checkStatusOfRegion(region,this.currentPosition);
         if(tileOwner===null){
@@ -572,19 +602,20 @@ export default class Game extends Phaser.Scene
 
             ServerEvents.once("player-decision-response",(res)=>{
                 if(res && res.status){
-                    // Want To Build Industry
+                    
                     console.log(res);
                     this.room.send("AddIndustry",{
                         index:this.playerIndex,
                         industry:res.industry,
                     })
+
+
                 }else{
                     // Doesn't Want to Build Industry
+                    this.room.send("NextTurn")
                 }
             })
-            // this.time.delayedCall(10000,()=>{
-            //     ServerEvents.off("player-decision-response")
-            // })
+            
             
             
         }else if(tileOwner.index===this.playerIndex){
@@ -594,6 +625,7 @@ export default class Game extends Phaser.Scene
             if(industry.level===3){
                 //Already at highest level
                 this.displayMessage(["You Cannot Upgrade Further"]);
+                this.room.send("NextTurn")
             }else{
                 this.showDecisionForm("upgrade",{
                     region,
@@ -606,14 +638,16 @@ export default class Game extends Phaser.Scene
                             index:this.playerIndex,
                             industry,
                         })
+                    }else{
+                        this.room.send("NextTurn")
                     }
                 })
-                // this.time.delayedCall(10000,()=>{
-                //     ServerEvents.off("player-decision-response")
-                // })
+               
                 
         }
         }else{
+            this.displayMessage(["You cannot build an industry here!",`$${indexToColorMapping[tileOwner.index]} has already built an industry here!`])
+            this.room.send("NextTurn");
             // SomeoneElse Owns it
             // Current Player sends rent to the owner
             
@@ -681,7 +715,7 @@ export default class Game extends Phaser.Scene
 
             this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
         });
-        //console.log(this.room.state.currentPlayerTurnIndex);
+        console.log(this.room.state.currentPlayerTurnIndex);
         
         this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
         // this.text.setColor(colors[next_turn]);

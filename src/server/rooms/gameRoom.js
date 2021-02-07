@@ -34,18 +34,7 @@ module.exports.GameRoom = class GameRoom extends Room {
         })
 
         this.onMessage("UpdatePosition",(client,message)=>{
-            // const value=randomInt(1,7);
-            // // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
-            // this.state.lastDiceValue=value
-
-            // setTimeout(()=>{
-                
-            //     //this.state.currentPlayerTurnIndex+=1;
-            //     if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
-            //         this.state.currentPlayerTurnIndex=0;
-            //     }
-            //     this.broadcast("DiceRollResult",value);
-            // },1000);
+          
 
             const playerIndex=message.index;
             let playerState=this.state.playerStates[playerIndex];
@@ -67,6 +56,32 @@ module.exports.GameRoom = class GameRoom extends Room {
             this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
 
         })
+
+        this.onMessage("Update Currency",(client,message)=>{
+            // Code For Updating Currency
+            this.initializeNextTurn()
+        })
+
+        this.onMessage("AddIndustry",(client,message)=>{
+            this.initializeNextTurn()
+        })
+
+        this.onMessage("UpgradeIndustry",(client,message)=>{
+            this.initializeNextTurn()
+        })
+
+        this.onMessage("RollAgain",(client,message)=>{
+            this.initializeNextTurn()
+        })
+
+        this.onMessage("GoToJail",(client,message)=>{
+            this.initializeNextTurn()
+        })
+
+        this.onMessage("NextTurn",(client,message)=>{
+            // Just Go To Next Turn
+            this.initializeNextTurn()
+        })
        
     }
 
@@ -85,6 +100,17 @@ module.exports.GameRoom = class GameRoom extends Room {
 
     onDispose () {
         
+    }
+
+    initializeNextTurn(){
+        this.state.currentPlayerTurnIndex+=1;
+           
+        if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
+            this.state.currentPlayerTurnIndex=0;
+        }
+        this.state.allowTurn=true;
+        this.broadcast("AllowForNextTurn",{});
+
     }
 
 }
