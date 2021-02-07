@@ -167,6 +167,7 @@ class GameRoomState extends Schema {
         this.playerStates = new ArraySchema();
         this.industryDetails = new IndustryDetails();
         this.automobileDetails = new AutomobileDetails();
+        this.allowTurn=true;
     }
     
 }
@@ -174,6 +175,7 @@ schema.defineTypes(GameRoomState, {
     playerStates: [ PlayerState ],
     lastDiceValue: "number",
     currentPlayerTurnIndex:"number",
+    allowTurn:"boolean",
     industryDetails: IndustryDetails,
     automobileDetails: AutomobileDetails
 });

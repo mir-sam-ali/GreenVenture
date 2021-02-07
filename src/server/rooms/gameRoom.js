@@ -26,7 +26,7 @@ module.exports.GameRoom = class GameRoom extends Room {
             const value=randomInt(1,7);
             console.log("DiceRoll",value)
             this.state.lastDiceValue=value
-
+            this.state.allowTurn=false;
             setTimeout(()=>{                
                 this.broadcast("DiceRollResult",value);
             },1000);

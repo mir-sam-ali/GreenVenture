@@ -153,7 +153,8 @@ export default class Game extends Phaser.Scene
 
         dice.on('pointerdown', (pointer)=> {
 
-            if(this.room.state.currentPlayerTurnIndex===this.playerIndex)
+            // if(this.room.state.currentPlayerTurnIndex===this.playerIndex)
+            if(this.room.state.allowTurn)
                 this.stateMachine.setState('dice-roll');
     
         });
