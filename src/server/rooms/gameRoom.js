@@ -5,6 +5,17 @@ const  { GameRoomState, PlayerState }  = require('./schema/gameRoomState');
 const { Dispatcher } = require('@colyseus/command');
 const { OnJoinCommand } = require("../commands/onJoinCmd");
 const { OnLeaveCommand } = require("../commands/onLeaveCmd");
+const { OnDiceRollCommand } = require("../commands/onDiceRollCmd");
+const { OnUpdatePositionCommand } = require("../commands/onUpdatePositionCmd");
+const { OnBuyIndustryCommand } = require("../commands/onBuyIndustryCmd");
+const { OnUpgradeIndustryCommand } = require("../commands/onUpgradeIndustryCmd");
+const { OnBuyFuelCommand } = require("../commands/onBuyFuelCmd");
+const { OnUpgradeAutomobileCommand } = require("../commands/onUpgradeAutomobileCmd");
+const { OnPayTaxCommand } = require("../commands/onPayTaxCmd");
+const { OnPayEmployeesCommand } = require("../commands/onPayEmployeesCmd");
+const { OnEventCommand } = require("../commands/onEventCmd");
+const { OnLegalBattleCommand } = require("../commands/onLegalBattleCmd");
+const { OnCasinoCommand } = require("../commands/onCasinoCmd");
 
 
 module.exports.GameRoom = class GameRoom extends Room {
@@ -23,49 +34,78 @@ module.exports.GameRoom = class GameRoom extends Room {
         this.setState(new GameRoomState());
 
         this.onMessage("DiceRoll",(client)=>{
-            const value=randomInt(1,7);
-            console.log("DiceRoll",value)
-            this.state.lastDiceValue=value
-            this.state.allowTurn=false;
-            setTimeout(()=>{                
-                this.broadcast("DiceRollResult",value);
-            },1000);
-
+            this.dispatcher.dispatch(new OnDiceRollCommand, {
+                sessionId: client.sessionId
+            })
         })
 
-        this.onMessage("UpdatePosition",(client,message)=>{
-            // const value=randomInt(1,7);
-            // // console.log("DiceRoll",this.state.currentPlayerTurnIndex)
-            // this.state.lastDiceValue=value
+        this.onMessage("UpdatePosition",(client, message) => {
+            this.dispatcher.dispatch(new OnUpdatePositionCommand, {
+                sessionId: client.sessionId
+            })
+        })
 
-            // setTimeout(()=>{
-                
-            //     //this.state.currentPlayerTurnIndex+=1;
-            //     if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
-            //         this.state.currentPlayerTurnIndex=0;
-            //     }
-            //     this.broadcast("DiceRollResult",value);
-            // },1000);
+        this.onMessage("BuyIndustry", (client, message) => {
+            this.dispatcher.dispatch(new OnBuyIndustryCommand, {
+                sessionId: client.sessionId,
+                type: message.industryType,
+                name: message.industryName
+            })
+        })
 
-            const playerIndex=message.index;
-            let playerState=this.state.playerStates[playerIndex];
-            let offset=this.state.lastDiceValue;
-            console.log(offset);
+        this.onMessage("UpgradeIndustry", (client, message) => {
+            this.dispatcher.dispatch(new OnUpgradeIndustryCommand, {
+                sessionId: client.sessionId,
+                level: message.level
+            })
+        })
 
-            let newPosition=playerState.piece.tilePosition+offset;
-            if(newPosition>=36){
-                newPosition=newPosition-36;
-            }
+        this.onMessage("BuyFuel", (client, message) => {
+            this.dispatcher.dispatch(new OnBuyFuelCommand, {
+                sessionId: client.sessionId
+            })
+        })
 
-            playerState.piece.tilePosition=newPosition;
+        this.onMessage("UpgradeAutomobile", (client, message) => {
+            this.dispatcher.dispatch(new OnUpgradeAutomobileCommand, {
+                sessionId: client.sessionId,
+                type: message.type
+            })
+        })
 
-            // this.state.currentPlayerTurnIndex+=1;
-           
-            // if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
-            //     this.state.currentPlayerTurnIndex=0;
-            // }
-            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
+        this.onMessage("PayTax", (client, message) => {
+            this.dispatcher.dispatch(new OnPayTaxCommand, {
+                sessionId: client.sessionId
+            })
+        })
 
+        this.onMessage("PayEmployees", (client, message) => {
+            this.dispatcher.dispatch(new OnPayEmployeesCommand, {
+                sessionId: client.sessionId
+            })
+        })
+
+        this.onMessage("Event", (client, message) => {
+            this.dispatcher.dispatch(new OnEventCommand, {
+                sessionId: client.sessionId,
+                income: message.income,
+                cc: message.cc
+            })
+        })
+
+        this.onMessage("LegalBattle", (client, message) => {
+            this.dispatcher.dispatch(new OnLegalBattleCommand, {
+                sessionId: client.sessionId,
+                status: message.status
+            })
+        })
+
+        this.onMessage("Casino", (client, message) => {
+            this.dispatcher.dispatch(new OnCasinoCommand, {
+                sessionId: client.sessionId,
+                income: message.income,
+                cc: message.cc
+            })
         })
        
     }
