@@ -116,14 +116,14 @@ module.exports.GameRoom = class GameRoom extends Room {
                 newPosition=newPosition-36;
             }
 
-            playerState.piece.tilePosition=newPosition;
+            playerState.piece.tilePosition=16;
 
             // this.state.currentPlayerTurnIndex+=1;
            
             // if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
             //     this.state.currentPlayerTurnIndex=0;
             // }
-            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition});
+            this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition:16});
         })
 
 

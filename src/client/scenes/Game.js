@@ -567,7 +567,7 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===16 || this.currentPosition===32){
             //Fuel Point
             console.log("Fuel Point");
-            this.room.send("NextTurn");
+            this.room.send("BuyFuel");
         }
         else if(this.currentPosition===4 || this.currentPosition===11){
             //Pay Tax
