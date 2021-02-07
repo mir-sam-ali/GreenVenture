@@ -43,14 +43,17 @@ module.exports.GameRoom = class GameRoom extends Room {
             this.dispatcher.dispatch(new OnUpdatePositionCommand, {
                 sessionId: client.sessionId
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("BuyIndustry", (client, message) => {
+            console.log(message)
             this.dispatcher.dispatch(new OnBuyIndustryCommand, {
                 sessionId: client.sessionId,
-                type: message.industryType,
-                name: message.industryName
+                type: message.type,
+                name: message.name
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("UpgradeIndustry", (client, message) => {
@@ -58,12 +61,14 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 level: message.level
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("BuyFuel", (client, message) => {
             this.dispatcher.dispatch(new OnBuyFuelCommand, {
                 sessionId: client.sessionId
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("UpgradeAutomobile", (client, message) => {
@@ -71,18 +76,21 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 type: message.type
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("PayTax", (client, message) => {
             this.dispatcher.dispatch(new OnPayTaxCommand, {
                 sessionId: client.sessionId
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("PayEmployees", (client, message) => {
             this.dispatcher.dispatch(new OnPayEmployeesCommand, {
                 sessionId: client.sessionId
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("Event", (client, message) => {
@@ -91,6 +99,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 income: message.income,
                 cc: message.cc
             })
+            this.initializeNextTurn()
         })
 
         this.onMessage("UpdatePosition",(client,message)=>{
@@ -122,6 +131,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 status: message.status
             })
+            this.initializeNextTurn();
         })
 
         this.onMessage("Casino", (client, message) => {
@@ -130,23 +140,24 @@ module.exports.GameRoom = class GameRoom extends Room {
                 income: message.income,
                 cc: message.cc
             })
+            this.initializeNextTurn();
         })
 
-        this.onMessage("Update Currency",(client,message)=>{
-            // Code For Updating Currency
+        // this.onMessage("Update Currency",(client,message)=>{
+        //     // Code For Updating Currency
 
 
 
-            this.initializeNextTurn()
-        })
+        //     this.initializeNextTurn()
+        // })
 
-        this.onMessage("AddIndustry",(client,message)=>{
-            this.initializeNextTurn()
-        })
+        // this.onMessage("AddIndustry",(client,message)=>{
+        //     this.initializeNextTurn()
+        // })
 
-        this.onMessage("UpgradeIndustry",(client,message)=>{
-            this.initializeNextTurn()
-        })
+        // this.onMessage("UpgradeIndustry",(client,message)=>{
+        //     this.initializeNextTurn()
+        // })
         
 
         this.onMessage("RollAgain",(client,message)=>{

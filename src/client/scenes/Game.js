@@ -288,6 +288,7 @@ export default class Game extends Phaser.Scene
    
 
     handleWaitForDiceRoll(){
+        console.log(this.room.state);
         this.time.delayedCall(1000,()=>{
             this.syncMyGame();
         })
@@ -349,6 +350,9 @@ export default class Game extends Phaser.Scene
     }
 
     executeAction(){
+        if(this.currentPosition===0){
+            this.room.send("NextTurn")
+        }
         if(this.currentPosition===1 || this.currentPosition===33 || this.currentPosition===34){
             // Forest Action
             console.log("Forest");
@@ -459,7 +463,7 @@ export default class Game extends Phaser.Scene
                 //Odd is Mis-Fortune
                 
                 this.displayMessage(["One of Your ships has stopped working.","Pay $30 for repair."])
-                this.room.send("Update Currency",{
+                this.room.send("Event",{
                     income: -30,
                     cc: 0,
                 })
@@ -481,7 +485,7 @@ export default class Game extends Phaser.Scene
                 //Odd is Mis-Fortune
                 
                 this.displayMessage(["Oil Spill","You gain 500 amounts of carbon currency."])
-                this.room.send("Update Currency",{
+                this.room.send("Event",{
                     income: 0,
                     cc: 500,
                 })
@@ -643,7 +647,7 @@ export default class Game extends Phaser.Scene
                     if(res){
                         console.log(res);
                         this.room.send("UpgradeIndustry",{
-                            level: res.industry.level + 1,
+                            level: industry.level + 1,
                         })
                     }else{
                         this.room.send("NextTurn")
@@ -703,13 +707,21 @@ export default class Game extends Phaser.Scene
     }
 
     checkStatusOfRegion(region,tilePosition){
-        this.room.state.playerStates.forEach((player)=>{
-            player.industriesOwned.forEach((industry)=>{
-                if(industry.tile===tilePosition){
-                    return {tileOwner:player,industry,};
+        let found=false;
+        let industry=null;
+        let player=null;
+        this.room.state.playerStates.forEach((player_)=>{
+            player_.industriesOwned.forEach((industry_)=>{
+                console.log(industry_.tile,tilePosition)
+                if(industry_.tile==tilePosition){
+                    found=true;
+                    player=player_;
+                    industry=industry_;
                 }
             })
         })
+        if(found)
+            return {tileOwner:player,industry,};
 
         return {tileOwner:null,industry:null};
     }
@@ -829,6 +841,7 @@ export default class Game extends Phaser.Scene
 
 
             const nextLevel=details.industry.level+1;
+            console.log(details.industry);
             const nextLevelCost=details.industry.industryBuyUpgradeCost[`level${nextLevel}Cost`]
             const nextLevelIncome=details.industry.industryBuyUpgradeCost[`level${nextLevel}Income`]
             const nextLevelCC=details.industry.industryBuyUpgradeCost[`level${nextLevel}CC`]

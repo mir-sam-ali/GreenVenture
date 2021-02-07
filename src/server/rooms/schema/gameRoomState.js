@@ -107,10 +107,10 @@ schema.defineTypes(IndustryState, {
     type: "string", 
     name: "string", 
     level: "number", 
-    income: "string",
-    cc: "string", 
-    tile: "string",
-    industryDetails:IndustryBuyUpgradeCost
+    income: "number",
+    cc: "number", 
+    tile: "number",
+    industryBuyUpgradeCost:IndustryBuyUpgradeCost
 });
 
 class AutomobileState extends Schema {

@@ -7,8 +7,11 @@ module.exports.OnBuyIndustryCommand = class OnBuyIndustryCommand extends Command
         const playerIndex = this.state.playerStates.findIndex(player => player.id === sessionId);
         let playerState = this.state.playerStates[playerIndex];
 
-        const industry = this.state.industryDetails.industries.find(industry => industry.name === name);
-
+        const industry = this.state.industryDetails.industries.find(industry => {
+            console.log(name,industry.name);
+            return industry.name == name
+        });
+        console.log(playerState, industry)
         playerState.currentIncome -= industry.baseCost;
 
         playerState.industriesOwned.push(new IndustryState(

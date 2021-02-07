@@ -8,11 +8,11 @@ module.exports.OnUpgradeIndustryCommand = class OnUpgradeIndustryCommand extends
 
         const industryIndex = playerState.industriesOwned.findIndex(industry => industry.tile === playerState.piece.tilePosition);
 
-        playerState.currentIncome -= playerState.industriesOwned[industryIndex].industryDetails[`level${level}Cost`];
+        playerState.currentIncome -= playerState.industriesOwned[industryIndex].industryBuyUpgradeCost[`level${level}Cost`];
 
         playerState.industriesOwned[industryIndex].level = level;
-        playerState.industriesOwned[industryIndex].income = playerState.industriesOwned[industryIndex].industryDetails[`level${level}Income`];
-        playerState.industriesOwned[industryIndex].cc = playerState.industriesOwned[industryIndex].industryDetails[`level${level}CC`];
+        playerState.industriesOwned[industryIndex].income = playerState.industriesOwned[industryIndex].industryBuyUpgradeCost[`level${level}Income`];
+        playerState.industriesOwned[industryIndex].cc = playerState.industriesOwned[industryIndex].industryBuyUpgradeCost[`level${level}CC`];
     }
 
 }
