@@ -561,22 +561,30 @@ export default class Game extends Phaser.Scene
             // No one has yet built an industry here!
             // Build Option
             //console.log(this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][0]],this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][1]])
-            const res=this.showDecisionForm("build",
+            this.showDecisionForm("build",
             {
                 region,
                 industry_1:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][0]],
                 industry_2:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][1]]
             })
-            if(res && res.status){
-                // Want To Build Industry
-                console.log(res);
-                this.room.send("AddIndustry",{
-                    index:this.playerIndex,
-                    industry:res.industry,
-                })
-            }else{
-                // Doesn't Want to Build Industry
-            }
+            
+
+            ServerEvents.once("player-decision-response",(res)=>{
+                if(res && res.status){
+                    // Want To Build Industry
+                    console.log(res);
+                    this.room.send("AddIndustry",{
+                        index:this.playerIndex,
+                        industry:res.industry,
+                    })
+                }else{
+                    // Doesn't Want to Build Industry
+                }
+            })
+            // this.time.delayedCall(10000,()=>{
+            //     ServerEvents.off("player-decision-response")
+            // })
+            
             
         }else if(tileOwner.index===this.playerIndex){
             // Current Player Owns the Tile
@@ -586,16 +594,23 @@ export default class Game extends Phaser.Scene
                 //Already at highest level
                 this.displayMessage(["You Cannot Upgrade Further"]);
             }else{
-                const res=this.showDecisionForm("upgrade",{
+                this.showDecisionForm("upgrade",{
                     region,
                     industry,
                 })
-                if(res){
-                    this.room.send("UpgradeIndustry",{
-                        index:this.playerIndex,
-                        industry,
-                    })
-                }
+                ServerEvents.once("player-decision-response",(res)=>{
+                    if(res){
+                        console.log(res);
+                        this.room.send("UpgradeIndustry",{
+                            index:this.playerIndex,
+                            industry,
+                        })
+                    }
+                })
+                // this.time.delayedCall(10000,()=>{
+                //     ServerEvents.off("player-decision-response")
+                // })
+                
         }
         }else{
             // SomeoneElse Owns it
@@ -815,6 +830,7 @@ export default class Game extends Phaser.Scene
     
             upgradeButton.on('pointerdown',()=>{
                 //console.log(true)
+                
                 document.getElementById("game-canvas").style.cursor = "default";
                 text1.destroy();
                 text2.destroy();
@@ -828,7 +844,8 @@ export default class Game extends Phaser.Scene
                 text8.destroy();
                 upgradeButton.destroy();
                 cancelButton.destroy();
-                return true;
+                ServerEvents.emit("player-decision-response",true)
+               
             })
 
 
@@ -858,7 +875,7 @@ export default class Game extends Phaser.Scene
                 upgradeButton.destroy();
                 cancelButton.destroy();
                 
-                return false;
+                ServerEvents.emit("player-decision-response",false)
             })
         }
         else if(type==="build"){
@@ -933,7 +950,7 @@ export default class Game extends Phaser.Scene
                 text10.destroy();
                 buildButton_2.destroy();
                 cancelButton.destroy();
-                return {status:true,industry:details.industry_1};
+                ServerEvents.emit("player-decision-response", {status:true,industry:details.industry_1});
             })
 
 
@@ -994,7 +1011,7 @@ export default class Game extends Phaser.Scene
                 text10.destroy();
                 buildButton_2.destroy();
                 cancelButton.destroy();
-                return {status:true,industry:details.industry_2};
+                ServerEvents.emit("player-decision-response", {status:true,industry:details.industry_2});
             })
 
 
@@ -1026,7 +1043,7 @@ export default class Game extends Phaser.Scene
                 text10.destroy();
                 buildButton_2.destroy();
                 cancelButton.destroy();
-                return {status:false};
+                ServerEvents.emit("player-decision-response", {status:false}); 
             })
         }
 
@@ -1126,7 +1143,7 @@ export default class Game extends Phaser.Scene
                 text8.destroy();
                 upgradeButton.destroy();
                 cancelButton.destroy();
-                return true;
+                ServerEvents.emit("player-decision-response",true)
             })
 
 
@@ -1156,10 +1173,10 @@ export default class Game extends Phaser.Scene
                 upgradeButton.destroy();
                 cancelButton.destroy();
                 
-                return false;
+                ServerEvents.emit("player-decision-response",false)
             })
         }
-        return null;
+        
     }
 
 }
