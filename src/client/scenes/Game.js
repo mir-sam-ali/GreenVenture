@@ -617,7 +617,7 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===18){
             //Casino
             console.log("Casino");
-            this.room.send("Casino")
+            this.room.send("Casino",{index:this.playerIndex})
         }
         else if(this.currentPosition===27){
             //Jail Visitors

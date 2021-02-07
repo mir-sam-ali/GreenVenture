@@ -136,10 +136,11 @@ module.exports.GameRoom = class GameRoom extends Room {
         })
 
         this.onMessage("Casino", (client, message) => {
+            const player=this.state.playerStates[message.index];
             this.dispatcher.dispatch(new OnCasinoCommand, {
                 sessionId: client.sessionId,
-                income: message.income,
-                cc: message.cc
+                income: player.currentIncome,
+                cc: player.currentCC
             })
             this.initializeNextTurn();
         })
