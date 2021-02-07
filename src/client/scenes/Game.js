@@ -24,7 +24,7 @@ const regionToIndustryIndexMapping={
     "urban":[0,1],
     "mines":[2,3],
     "farms":[4,5],
-    "rivers":[6,7],
+    "river":[6,7],
     "forest":[8,9],
     "hills":[10,11]
 }
@@ -198,7 +198,7 @@ export default class Game extends Phaser.Scene
         //     }
         // })
 
-        this.displayMessage(["The season is in your favour."," Timely rainfall has irrigated the farmlands","your industry owns, throwing away the", "need to manually irrigate them using machines."])
+       // this.displayMessage(["The season is in your favour."," Timely rainfall has irrigated the farmlands","your industry owns, throwing away the", "need to manually irrigate them using machines."])
     }
 
     // @ts-ignore
@@ -365,30 +365,143 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===35){
             // Forest Event
             console.log("Forest Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                this.displayMessage(["You caught wood smugglers in your forest.","You receive $20."])
+                this.room.send("Update Currency",{
+                    money:20,
+                    carbonCurrency:0,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                this.displayMessage(["There has been a Wildfire in the forest.","You receive $20."])
+                this.room.send("Update Currency",{
+                    money:0,
+                    carbonCurrency:500,
+                })
+            }
         }
         else if(this.currentPosition===7){
             // City Event
             console.log("City Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                
+                this.displayMessage(["You have constructed a waste management sector.","You lose 300 amounts of carbon currency","and receive $10 money."])
+                this.room.send("Update Currency",{
+                    money:10,
+                    carbonCurrency:-300,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length===0?0:20;  
+                this.displayMessage(["One of your industries has been"," damaged by a natural disaster."," Repair your industry before it is late.","(Doesn’t apply if you don’t own any industry)",`${amount} deducted from your money`])
+                this.room.send("Update Currency",{
+                    money:-(amount),
+                    carbonCurrency:0,
+                })
+            }
         }
         else if(this.currentPosition===13){
             // Hills Event
             console.log("Hills Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                
+                this.displayMessage(["Government has awarded all plantation owners $20 money."])
+                this.room.send("Update Currency",{
+                    money:20,
+                    carbonCurrency:0,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                
+                this.displayMessage(["There has been a landslide in your hills.","You lose $20 money and gain 200 carbon footprint."])
+                this.room.send("Update Currency",{
+                    money:-(20),
+                    carbonCurrency:200,
+                })
+            }
         }
         else if(this.currentPosition===21){
             // River Event
             console.log("River Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                
+                this.displayMessage(["You installed an electric precipitator filter in your ships’ chimney."," By doing this you lose 400 Carbon FootPrint"])
+                this.room.send("Update Currency",{
+                    money:0,
+                    carbonCurrency:-200,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                
+                this.displayMessage(["One of Your ships has stopped working.","Pay $30 for repair."])
+                this.room.send("Update Currency",{
+                    money:-(30),
+                    carbonCurrency:0,
+                })
+            }
         }
         else if(this.currentPosition===24){
             // Mines Event
             console.log("Mines Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                
+                this.displayMessage(["You have found diamonds in your coal industry!!!"," You gain $100 amount of money."])
+                this.room.send("Update Currency",{
+                    money:100,
+                    carbonCurrency:0,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                
+                this.displayMessage(["Oil Spill","You gain 500 amounts of carbon currency."])
+                this.room.send("Update Currency",{
+                    money:0,
+                    carbonCurrency:500,
+                })
+            }
         }
         else if(this.currentPosition===30){
-            // Mines Event
+            // Farms Event
             console.log("Farms Event");
+            if(this.room.state.lastDiceValue%2===0){
+                //Even is Fortune
+                
+                this.displayMessage(["The season is in your favour.","Timely rainfall has irrigated the farmlands your industry owns,"," throwing away the need to manually irrigate them using machines.","​Get rid of 500 amounts of carbon currency."]);
+                this.room.send("Update Currency",{
+                    money:0,
+                    carbonCurrency:-500,
+                })
+            }
+            else{
+                //Odd is Mis-Fortune
+                
+                this.displayMessage(["There was a flood in one of your farms,"," and you have lost all your grown crops.","You lose $20 amount of money"])
+                this.room.send("Update Currency",{
+                    money:-20,
+                    carbonCurrency:0,
+                })
+            }
         }
-        else if(this.currentPosition===2){
+        else if(this.currentPosition===2 || this.currentPosition===23){
             //Pay Employees
             console.log("Pay Employees");
+            const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*20;            
+            this.displayMessage(["You have to pay your employees.","Pay $20 for each Industry",` $${amount} is deducted from your money.`])
+            
+            this.room.send("Update Currencies",{
+                money:(-amount),
+                carbonCurrency:0,
+            })
         }
         else if(this.currentPosition===3){
             //Automobile Upgrade
@@ -401,6 +514,14 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===4 || this.currentPosition===11){
             //Pay Tax
             console.log("Pay Tax");
+            
+            const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*10;            
+            this.displayMessage(["You have to pay your Tax.","Pay $10 for each Industry",` $${amount} is deducted from your money.`])
+            
+            this.room.send("Update Currencies",{
+                money:(-amount),
+                carbonCurrency:0,
+            })
         }
         else if(this.currentPosition===9){
             //Go To Jail
@@ -409,18 +530,23 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===10){
             //Roll Again
             console.log("Roll Again");
+
         }
         else if(this.currentPosition===17){
             //Legal Battles
             console.log("Legal Battles");
+           
+                      
+            this.displayMessage(["You have won a legal battle","You receive $80 as settlement."])
+            
+            this.room.send("Deduct Currencies",{
+                money:80,
+                carbonCurrency:0,
+            })
         }
         else if(this.currentPosition===18){
             //Casino
             console.log("Casino");
-        }
-        else if(this.currentPosition===23){
-            //Pay Employees
-            console.log("Pay Employees");
         }
         else if(this.currentPosition===27){
             //Jail Visitors
@@ -441,8 +567,9 @@ export default class Game extends Phaser.Scene
                 industry_1:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][0]],
                 industry_2:this.room.state.industryDetails.industries[regionToIndustryIndexMapping[region.toLowerCase()][1]]
             })
-            if(res.status){
+            if(res && res.status){
                 // Want To Build Industry
+                console.log(res);
                 this.room.send("AddIndustry",{
                     index:this.playerIndex,
                     industry:res.industry,
