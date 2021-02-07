@@ -144,6 +144,8 @@ class PlayerState extends Schema {
         this.id = id;
         this.index = index;
         this.piece = new PieceState();
+        this.currentIncome = 50;
+        this.currentCC = 0;
         this.industriesOwned = new ArraySchema();
         this.automobile = new AutomobileState();
         // console.log(this.piece)
@@ -153,6 +155,8 @@ schema.defineTypes(PlayerState, {
     id: "string",
     index: "number",
     piece: PieceState,
+    currentIncome: "number",
+    currentCC: "number",
     industriesOwned: [IndustryState],
     automobile: AutomobileState
 });
@@ -183,5 +187,6 @@ schema.defineTypes(GameRoomState, {
 module.exports = {
     GameRoomState,
     PlayerState,
-    PieceState
+    PieceState,
+    IndustryState
 }
