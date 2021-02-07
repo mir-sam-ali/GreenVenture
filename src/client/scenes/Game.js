@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import * as Colyseus from 'colyseus.js';
 import StateMachine from '../statemachine/StateMachine';
+import { randomInt } from '../../shared/math/random';
 //import ClientMessage from "../../ClientMessage"
 
 const dicePositionsOffset = [
@@ -384,17 +385,17 @@ export default class Game extends Phaser.Scene
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
                 this.displayMessage(["You caught wood smugglers in your forest.","You receive $20."])
-                this.room.send("Update Currency",{
-                    money:20,
-                    carbonCurrency:0,
+                this.room.send("Event",{
+                    income: 20,
+                    cc: 0,
                 })
             }
             else{
                 //Odd is Mis-Fortune
                 this.displayMessage(["There has been a Wildfire in the forest.","You receive $20."])
-                this.room.send("Update Currency",{
-                    money:0,
-                    carbonCurrency:500,
+                this.room.send("Event",{
+                    income: 0,
+                    cc: 500,
                 })
             }
         }
@@ -405,18 +406,18 @@ export default class Game extends Phaser.Scene
                 //Even is Fortune
                 
                 this.displayMessage(["You have constructed a waste management sector.","You lose 300 amounts of carbon currency","and receive $10 money."])
-                this.room.send("Update Currency",{
-                    money:10,
-                    carbonCurrency:-300,
+                this.room.send("Event",{
+                    income: 10,
+                    cc: -300,
                 })
             }
             else{
                 //Odd is Mis-Fortune
                 const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length===0?0:20;  
                 this.displayMessage(["One of your industries has been"," damaged by a natural disaster."," Repair your industry before it is late.","(Doesn’t apply if you don’t own any industry)",`${amount} deducted from your money`])
-                this.room.send("Update Currency",{
-                    money:-(amount),
-                    carbonCurrency:0,
+                this.room.send("Event",{
+                    money: -(amount),
+                    cc: 0,
                 })
             }
         }
@@ -427,18 +428,18 @@ export default class Game extends Phaser.Scene
                 //Even is Fortune
                 
                 this.displayMessage(["Government has awarded all plantation owners $20 money."])
-                this.room.send("Update Currency",{
-                    money:20,
-                    carbonCurrency:0,
+                this.room.send("Event",{
+                    income: 20,
+                    cc: 0,
                 })
             }
             else{
                 //Odd is Mis-Fortune
                 
                 this.displayMessage(["There has been a landslide in your hills.","You lose $20 money and gain 200 carbon footprint."])
-                this.room.send("Update Currency",{
-                    money:-(20),
-                    carbonCurrency:200,
+                this.room.send("Event",{
+                    money: -20,
+                    cc: 200,
                 })
             }
         }
@@ -449,9 +450,9 @@ export default class Game extends Phaser.Scene
                 //Even is Fortune
                 
                 this.displayMessage(["You installed an electric precipitator filter in your ships’ chimney."," By doing this you lose 400 Carbon FootPrint"])
-                this.room.send("Update Currency",{
-                    money:0,
-                    carbonCurrency:-200,
+                this.room.send("Event",{
+                    income: 0,
+                    cc: -200,
                 })
             }
             else{
@@ -459,8 +460,8 @@ export default class Game extends Phaser.Scene
                 
                 this.displayMessage(["One of Your ships has stopped working.","Pay $30 for repair."])
                 this.room.send("Update Currency",{
-                    money:-(30),
-                    carbonCurrency:0,
+                    income: -30,
+                    cc: 0,
                 })
             }
         }
@@ -471,9 +472,9 @@ export default class Game extends Phaser.Scene
                 //Even is Fortune
                 
                 this.displayMessage(["You have found diamonds in your coal industry!!!"," You gain $100 amount of money."])
-                this.room.send("Update Currency",{
-                    money:100,
-                    carbonCurrency:0,
+                this.room.send("Event",{
+                    money: 100,
+                    cc: 0,
                 })
             }
             else{
@@ -481,8 +482,8 @@ export default class Game extends Phaser.Scene
                 
                 this.displayMessage(["Oil Spill","You gain 500 amounts of carbon currency."])
                 this.room.send("Update Currency",{
-                    money:0,
-                    carbonCurrency:500,
+                    income: 0,
+                    cc: 500,
                 })
             }
         }
@@ -493,18 +494,18 @@ export default class Game extends Phaser.Scene
                 //Even is Fortune
                 
                 this.displayMessage(["The season is in your favour.","Timely rainfall has irrigated the farmlands your industry owns,"," throwing away the need to manually irrigate them using machines.","​Get rid of 500 amounts of carbon currency."]);
-                this.room.send("Update Currency",{
-                    money:0,
-                    carbonCurrency:-500,
+                this.room.send("Event",{
+                    income: 0,
+                    cc: -500,
                 })
             }
             else{
                 //Odd is Mis-Fortune
                 
                 this.displayMessage(["There was a flood in one of your farms,"," and you have lost all your grown crops.","You lose $20 amount of money"])
-                this.room.send("Update Currency",{
-                    money:-20,
-                    carbonCurrency:0,
+                this.room.send("Event",{
+                    income: -20,
+                    cc: 0,
                 })
             }
         }
@@ -514,9 +515,9 @@ export default class Game extends Phaser.Scene
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*20;            
             this.displayMessage(["You have to pay your employees.","Pay $20 for each Industry",` $${amount} is deducted from your money.`])
             
-            this.room.send("Update Currency",{
-                money:(-amount),
-                carbonCurrency:0,
+            this.room.send("Event",{
+                income:(-amount),
+                cc:0,
             })
         }
         else if(this.currentPosition===3){
@@ -537,9 +538,9 @@ export default class Game extends Phaser.Scene
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*10;            
             this.displayMessage(["You have to pay your Tax.","Pay $10 for each Industry",` $${amount} is deducted from your money.`])
             
-            this.room.send("Update Currency",{
-                money:(-amount),
-                carbonCurrency:0,
+            this.room.send("Event",{
+                income:(-amount),
+                cc:0,
             })
         }
         else if(this.currentPosition===9){
@@ -556,14 +557,24 @@ export default class Game extends Phaser.Scene
         else if(this.currentPosition===17){
             //Legal Battles
             console.log("Legal Battles");
+
+            const rantInt = randomInt(1, 3);
            
+            if(rantInt === 1){
+                this.displayMessage(["You have won a legal battle against other players"])
+                
+                this.room.send("LegalBattle",{
+                    status: true
+                })
+            }
+            else {
+                this.displayMessage(["You have lost a legal battle against other players"])
+                
+                this.room.send("LegalBattle",{
+                    status: false
+                })
+            }
                       
-            this.displayMessage(["You have won a legal battle","You receive $80 as settlement."])
-            
-            this.room.send("Update Currency",{
-                money:80,
-                carbonCurrency:0,
-            })
         }
         else if(this.currentPosition===18){
             //Casino
@@ -601,9 +612,9 @@ export default class Game extends Phaser.Scene
                 if(res && res.status){
                     
                     console.log(res);
-                    this.room.send("AddIndustry",{
-                        index:this.playerIndex,
-                        industry:res.industry,
+                    this.room.send("BuyIndustry",{
+                        name: res.industry.name,
+                        type: res.industry.type,
                     })
 
 
@@ -632,8 +643,7 @@ export default class Game extends Phaser.Scene
                     if(res){
                         console.log(res);
                         this.room.send("UpgradeIndustry",{
-                            index:this.playerIndex,
-                            industry,
+                            level: res.industry.level + 1,
                         })
                     }else{
                         this.room.send("NextTurn")

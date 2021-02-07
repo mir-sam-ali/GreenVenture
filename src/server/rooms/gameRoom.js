@@ -1,7 +1,7 @@
 const { Room } = require("colyseus");
 const { randomInt } = require("../../shared/math/random");
 //const  ClientMessage  = require("../../ClientMessage");
-const  { GameRoomState, PlayerState }  = require('./schema/gameRoomState');
+const { GameRoomState }  = require('./schema/gameRoomState');
 const { Dispatcher } = require('@colyseus/command');
 const { OnJoinCommand } = require("../commands/onJoinCmd");
 const { OnLeaveCommand } = require("../commands/onLeaveCmd");
