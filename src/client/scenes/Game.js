@@ -138,12 +138,12 @@ export default class Game extends Phaser.Scene
 
         this.room.state.playerStates.onRemove = (item) => {
             // console.log("onRemove func", item);
-            const pieces = this.piecesForPlayer[item.id];
-            if(!pieces) {
+            const piece = this.piecesForPlayer[item.id];
+            if(!piece) {
                 return 
             }
 
-            pieces.forEach(piece => piece.destroy());
+            piece.destroy();
         } 
 
 
