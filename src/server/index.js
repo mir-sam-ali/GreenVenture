@@ -8,7 +8,7 @@ const { monitor } = require('@colyseus/monitor');
 // const demo room handlers
 const { GameRoom } = require("./rooms/gameRoom");
 
-const port = Number(process.env.PORT || 2567) + Number(process.env.NODE_APP_INSTANCE || 0);
+const port = Number(process.env.PORT || 2567);
 const app = express();
 
 app.use(cors());
@@ -24,7 +24,12 @@ const gameServer = new Server({
 // Define "lobby" room
 gameServer.define("GameRoom", GameRoom);
 
-app.use('/', express.static(path.join(__dirname, "static")));
+app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "..", "..", "dist")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "..", "dist", "index.html"));
+});
 
 // (optional) attach web monitoring panel
 app.use('/colyseus', monitor());
@@ -40,4 +45,4 @@ gameServer.listen(port);
 //   process.exit(1);
 // });
 
-console.log(`Listening on http://localhost:${ port }`);
+console.log(`Listening on port: ${ port }`);
