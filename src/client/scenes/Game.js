@@ -87,6 +87,9 @@ export default class Game extends Phaser.Scene
         this.load.image("build_button","assets/build.png")
         this.load.image("cancel_button","assets/cancel.png")
         this.load.image("upgrade_button","assets/upgrade.png")
+        this.load.image("gold_coin","assets/goldCoin.png");
+        this.load.image("green_coin","assets/greenCoin.png");
+        this.load.image("silver_coin","assets/silverCoin.png");
 
         for(let i = 1;i<=6;i++){
             this.load.image(`die-image-${i}`,`assets/Dice/dieRed_border${i}.png`)
@@ -125,6 +128,72 @@ export default class Game extends Phaser.Scene
                 align: "center"
             });
             this.text = text;
+
+            this.add.text(cx-500,cy-100,"Your Automobile:",{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'20px',
+                align: "center"
+            })
+            console.log(this.playerIndex)
+            this.add.image(cx-420,cy-50,`${indexToColorMapping[this.playerIndex].toLowerCase()}`)
+
+            this.add.text(cx-500,cy,"Type:",{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            })
+            const player=this.room.state.playerStates[this.playerIndex];
+            const automobile=this.room.state.playerStates[this.playerIndex].automobile;
+            this.automobileTypeText=this.add.text(cx-370,cy,`${automobile.type}`,{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center",
+                color:'black'
+
+            })
+
+            this.add.text(cx-500,cy+50,"Fuel Cost:",{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            })
+
+            this.automobileFuelText=this.add.text(cx-370,cy+50,`${automobile.fuelCost}`,{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center",
+                color:'black'
+            })
+
+
+            this.add.text(cx-500,cy+100,"Carbon Cost:",{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center"
+            })
+
+            this.automobileCarbonText=this.add.text(cx-370,cy+100,`${automobile.carbonCost}`,{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'15px',
+                align: "center",
+                color:'black'
+            })
+
+            this.coinText=this.add.text(cx-430,cy-280,`$${player.currentIncome}`,{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'19px',
+                align: "center",
+                color:'black'
+            });
+
+            this.carbonText=this.add.text(cx-430,cy-210,`${player.currentCC}`,{
+                fontFamily: '"Paytone one", san-serif',
+                fontSize:'19px',
+                align: "center",
+                color:'black'
+            });
+
+            
         
             this.stateMachine.setState("wait-for-dice-roll");
         })
@@ -148,6 +217,13 @@ export default class Game extends Phaser.Scene
         const dice=this.add.sprite(cx-dicePositionsOffset[0].x, cy-dicePositionsOffset[0].y, 'die-image-6').setInteractive();
         dice.setScale(0.8);
         this.dice=dice;
+
+
+        const goldCoinImage=this.add.image(cx-480,cy-270,'gold_coin');
+        goldCoinImage.setScale(0.03)
+
+        const silverCoinImage=this.add.image(cx-480,cy-200,'silver_coin');
+        silverCoinImage.setScale(0.06)
 
         dice.on('pointerdown', (pointer)=> {
             console.log(this.room.state.currentPlayerTurnIndex,this.room.state.allowTurn);
@@ -776,6 +852,15 @@ export default class Game extends Phaser.Scene
         console.log("Dice",this.room.state.lastDiceValue);
         if(this.room.state.lastDiceValue>0)
             this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
+
+        const player=this.room.state.playerStates[this.playerIndex];
+        this.coinText.setText(`$${player.currentIncome}`)
+        this.carbonText.setText(`${player.currentCC}`)
+
+        this.automobileTypeText.setText(`${player.automobile.type}`)
+        this.automobileFuelText.setText(`${player.automobile.fuelCost}`)
+        this.automobileCarbonText.setText(`${player.automobile.carbonCost}`)
+        
     }
 
     createPiece (idx, cx, cy) {
