@@ -95,6 +95,7 @@ module.exports.GameRoom = class GameRoom extends Room {
         })
 
         this.onMessage("Event", (client, message) => {
+            console.log("Event",message)
             this.dispatcher.dispatch(new OnEventCommand, {
                 sessionId: client.sessionId,
                 income: message.income,

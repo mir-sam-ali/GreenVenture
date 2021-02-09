@@ -144,7 +144,7 @@ class PlayerState extends Schema {
         this.id = id;
         this.index = index;
         this.piece = new PieceState();
-        this.currentIncome = 50;
+        this.currentIncome = 100;
         this.currentCC = 0;
         this.industriesOwned = new ArraySchema();
         this.automobile = new AutomobileState();

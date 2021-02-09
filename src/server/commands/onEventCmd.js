@@ -8,7 +8,7 @@ module.exports.OnEventCommand = class OnEventCommand extends Command {
 
         playerState.currentIncome += income;
         playerState.currentCC += cc;
-        playerState.currentIncome = playerState.currentIncome > 0? playerState.currentIncome: 0;
+        //playerState.currentIncome = playerState.currentIncome > 0? playerState.currentIncome: 0;
     }
 
 }

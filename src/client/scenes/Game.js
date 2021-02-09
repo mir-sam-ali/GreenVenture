@@ -472,7 +472,7 @@ export default class Game extends Phaser.Scene
             }
             else{
                 //Odd is Mis-Fortune
-                this.displayMessage(["There has been a Wildfire in the forest.","You receive $20."])
+                this.displayMessage(["There has been a Wildfire in the forest.","You gain 500 Carbon Currency ."])
                 this.room.send("Event",{
                     income: 0,
                     cc: 500,
