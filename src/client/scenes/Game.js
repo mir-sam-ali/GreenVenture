@@ -242,9 +242,11 @@ export default class Game extends Phaser.Scene
             else if(type=="NewPlayerPosition")
                 ServerEvents.emit("NewPlayerPosition",message);
             else if(type=="AllowForNextTurn"){
-                console.log("Here");
+                
                 ServerEvents.emit("AllowForNextTurn",message);
-            }    
+            }else if(type=="NewIncomes"){
+                ServerEvents.emit("NewIncomes",message);
+            }
         })
 
         // this.showDecisionForm("build",{
@@ -496,7 +498,7 @@ export default class Game extends Phaser.Scene
                 const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length===0?0:20;  
                 this.displayMessage(["One of your industries has been"," damaged by a natural disaster."," Repair your industry before it is late.","(Doesn’t apply if you don’t own any industry)",`${amount} deducted from your money`])
                 this.room.send("Event",{
-                    money: -(amount),
+                    income: -(amount),
                     cc: 0,
                 })
             }
@@ -518,7 +520,7 @@ export default class Game extends Phaser.Scene
                 
                 this.displayMessage(["There has been a landslide in your hills.","You lose $20 money and gain 200 carbon footprint."])
                 this.room.send("Event",{
-                    money: -20,
+                    income: -20,
                     cc: 200,
                 })
             }
@@ -553,7 +555,7 @@ export default class Game extends Phaser.Scene
                 
                 this.displayMessage(["You have found diamonds in your coal industry!!!"," You gain $100 amount of money."])
                 this.room.send("Event",{
-                    money: 100,
+                    income: 100,
                     cc: 0,
                 })
             }
@@ -841,7 +843,7 @@ export default class Game extends Phaser.Scene
 
         this.room.state.playerStates.forEach((playerState, idx) => {
             //console.log("Here",playerState);
-
+            
             this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
         });
         console.log(this.room.state.currentPlayerTurnIndex);

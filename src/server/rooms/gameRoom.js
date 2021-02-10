@@ -53,7 +53,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 type: message.type,
                 name: message.name
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("UpgradeIndustry", (client, message) => {
@@ -61,14 +61,14 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 level: message.level
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("BuyFuel", (client, message) => {
             this.dispatcher.dispatch(new OnBuyFuelCommand, {
                 sessionId: client.sessionId
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("UpgradeAutomobile", (client, message) => {
@@ -77,21 +77,21 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 type: message.type
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("PayTax", (client, message) => {
             this.dispatcher.dispatch(new OnPayTaxCommand, {
                 sessionId: client.sessionId
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("PayEmployees", (client, message) => {
             this.dispatcher.dispatch(new OnPayEmployeesCommand, {
                 sessionId: client.sessionId
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("Event", (client, message) => {
@@ -101,7 +101,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 income: message.income,
                 cc: message.cc
             })
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("UpdatePosition",(client,message)=>{
@@ -133,7 +133,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 sessionId: client.sessionId,
                 status: message.status
             })
-            this.initializeNextTurn();
+            this.initializeNextTurn(client);
         })
 
         this.onMessage("Casino", (client, message) => {
@@ -143,7 +143,7 @@ module.exports.GameRoom = class GameRoom extends Room {
                 income: player.currentIncome,
                 cc: player.currentCC
             })
-            this.initializeNextTurn();
+            this.initializeNextTurn(client);
         })
 
         // this.onMessage("Update Currency",(client,message)=>{
@@ -151,20 +151,22 @@ module.exports.GameRoom = class GameRoom extends Room {
 
 
 
-        //     this.initializeNextTurn()
+        //     this.initializeNextTurn(client)
         // })
 
         // this.onMessage("AddIndustry",(client,message)=>{
-        //     this.initializeNextTurn()
+        //     this.initializeNextTurn(client)
         // })
 
         // this.onMessage("UpgradeIndustry",(client,message)=>{
-        //     this.initializeNextTurn()
+        //     this.initializeNextTurn(client)
         // })
         
 
         this.onMessage("RollAgain",(client,message)=>{
+            this.incrementPlayerMove(client);
             this.state.allowTurn=true;
+            
             this.broadcast("AllowForNextTurn",{});
         })
 
@@ -175,12 +177,12 @@ module.exports.GameRoom = class GameRoom extends Room {
             playerState.piece.tilePosition=newPosition;
 
             this.broadcast("NewPlayerPosition",{index:playerIndex,id:playerState.id,newPosition,});
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
 
         this.onMessage("NextTurn",(client,message)=>{
             // Just Go To Next Turn
-            this.initializeNextTurn()
+            this.initializeNextTurn(client)
         })
        
     }
@@ -202,7 +204,9 @@ module.exports.GameRoom = class GameRoom extends Room {
         
     }
 
-    initializeNextTurn(){
+    initializeNextTurn(client){
+        this.incrementPlayerMove(client);
+
         this.state.currentPlayerTurnIndex+=1;
            
         if(this.state.currentPlayerTurnIndex===this.state.playerStates.length){
@@ -211,6 +215,33 @@ module.exports.GameRoom = class GameRoom extends Room {
         this.state.allowTurn=true;
         this.broadcast("AllowForNextTurn",{});
 
+    }
+
+    incrementPlayerMove(client){
+        const playerIndex = this.state.playerStates.findIndex(player => player.id === client.sessionId);
+        this.state.playerStates[playerIndex].movesPlayed+=1;
+        this.checkAndSendIncome(playerIndex);
+    }
+
+    checkAndSendIncome(index){
+            const player=this.state.playerStates[index];
+            if(player.movesPlayed!==0 && player.movesPlayed%3===0)
+            {
+                console.log("Sending Income")
+                let incomeChange=0
+                let CCchange=0;
+            
+                if(player.industriesOwned.length !== 0)
+                    player.industriesOwned.forEach(industry=>{
+                        incomeChange+=industry.income;
+                        CCchange+=industry.cc;
+                    })
+                CCchange+=player.automobile.carbonCost;
+                player.currentIncome+=incomeChange;
+                player.currentCC+=CCchange;
+            }
+       
+        //this.broadcast("NewIncomes",{playerStates:this.state.playerStates});
     }
 
 }

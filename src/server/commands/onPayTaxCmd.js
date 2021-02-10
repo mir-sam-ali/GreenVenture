@@ -10,7 +10,7 @@ module.exports.OnPayTaxCommand = class OnPayTaxCommand extends Command {
 
         playerState.currentIncome -= numberOfIndustries * 20;
 
-        playerState.currentIncome = playerState.currentIncome > 0? playerState.currentIncome: 0;
+        // playerState.currentIncome = playerState.currentIncome > 0? playerState.currentIncome: 0;
     }
 
 }

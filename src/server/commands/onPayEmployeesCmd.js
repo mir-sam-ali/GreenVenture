@@ -10,7 +10,7 @@ module.exports.OnPayEmployeesCommand = class OnPayEmployeesCommand extends Comma
 
         playerState.currentIncome -= numberOfIndustries * 15;
 
-        playerState.currentIncome = playerState.currentIncome > 0? playerState.currentIncome: 0;
+        playerState.currentIncome = playerState.currentIncome;
     }
 
 }

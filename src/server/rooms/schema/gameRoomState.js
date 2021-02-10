@@ -143,6 +143,7 @@ class PlayerState extends Schema {
         super();
         this.id = id;
         this.index = index;
+        this.movesPlayed=0;
         this.piece = new PieceState();
         this.currentIncome = 100;
         this.currentCC = 0;
@@ -155,6 +156,7 @@ schema.defineTypes(PlayerState, {
     id: "string",
     index: "number",
     piece: PieceState,
+    movesPlayed:"number",
     currentIncome: "number",
     currentCC: "number",
     industriesOwned: [IndustryState],
