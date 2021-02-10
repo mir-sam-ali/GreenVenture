@@ -46,7 +46,7 @@ export default class Game extends Phaser.Scene
     
     init()
     {
-        this.client = new Colyseus.Client('ws://localhost:2567');
+        this.client = new Colyseus.Client(`ws://greenventures.herokuapp.com:${process.env.PORT}`);
         this.stateMachine= new StateMachine(this,"game");
         this.stateMachine.addState('idle')
             .addState('wait-for-dice-roll',{

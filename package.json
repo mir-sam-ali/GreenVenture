@@ -3,8 +3,7 @@
 	"version": "1.0.0",
 	"description": "A template project for Phaser 3 using Parceljs",
 	"scripts": {
-		"start": "parcel src/client/index.html -p 8000",
-		"start-server": "nodemon src/server/index.js",
+		"start": "node src/server/index.js",
 		"build": "parcel build src/client/index.html --out-dir dist",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -18,11 +17,12 @@
 	"devDependencies": {
 		"@babel/core": "^7.10.5",
 		"babel-eslint": "^10.1.0",
+		"cssnano": "^4.1.10",
 		"eslint": "^6.8.0",
 		"minimist": ">=1.2.2",
 		"nodemon": "^2.0.7",
 		"parcel-plugin-clean-easy": "^1.0.2",
-		"parcel-plugin-static-files-copy": "^2.4.3"
+		"parcel-plugin-static-files-copy": "^2.5.1"
 	},
 	"dependencies": {
 		"@colyseus/command": "^0.1.6",
