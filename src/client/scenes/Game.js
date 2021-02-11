@@ -861,17 +861,17 @@ export default class Game extends Phaser.Scene
 
     syncMyGame(){
 
-        this.room.state.playerStates.forEach((playerState, idx) => {
-            //console.log("Here",playerState);
-            
+        this.room.state.playerStates.forEach((playerState, idx) => {                        
             this.updatePlayerAutomobilePosition(idx,playerState.id,playerState.piece.tilePosition)
         });
-        console.log(this.room.state.currentPlayerTurnIndex);
+
+        this.updateLeaderBoard(this.room.state.playerStates);
+        
         
         this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
-        // this.text.setColor(colors[next_turn]);
+       
 
-        console.log("Dice",this.room.state.lastDiceValue);
+        // console.log("Dice",this.room.state.lastDiceValue);
         if(this.room.state.lastDiceValue>0)
             this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
 
@@ -1386,7 +1386,7 @@ export default class Game extends Phaser.Scene
 
     updateLeaderBoard(players) {
 
-        console.log(players);
+        console.log("Updating LeaderBoard",players);
 
         const leaderboardPlayers = players.map(player => {
             return {
@@ -1396,10 +1396,14 @@ export default class Game extends Phaser.Scene
             }
         });
 
-        leaderboardPlayers.sort((a, b) => a.currentCC < b.currentCC);
+        leaderboardPlayers.sort((a, b) => {
+            if(a.currentCC < b.currentCC) return -1;
+            else return 1;
+            //a.currentCC > b.currentCC
+        });
 
-        // console.log("leader board players");
-        // console.log(leaderboardPlayers);
+        console.log("leader board players");
+        console.log(leaderboardPlayers);
 
         const ul = document.getElementById("leaderboard");
         ul.innerHTML = "";
