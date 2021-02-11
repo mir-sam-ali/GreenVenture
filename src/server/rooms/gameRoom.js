@@ -184,13 +184,20 @@ module.exports.GameRoom = class GameRoom extends Room {
             // Just Go To Next Turn
             this.initializeNextTurn(client)
         })
+
+        this.onMessage("text-msg", (client, message) => {
+            // console.log(message);
+            this.broadcast("received-msg", message);
+        })
        
     }
 
     onJoin (client, options) {
         // console.log(this.state.currentPlayerTurnIndex)
+        // console.log(options);
         this.dispatcher.dispatch(new OnJoinCommand(), {
-            sessionId: client.sessionId
+            sessionId: client.sessionId,
+            username: options.name
         })
     }
 

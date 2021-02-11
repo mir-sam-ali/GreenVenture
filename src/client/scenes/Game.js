@@ -46,8 +46,8 @@ export default class Game extends Phaser.Scene
     
     init()
     {
-        this.client = new Colyseus.Client(`ws://greenventures.herokuapp.com:${process.env.PORT}`);
-        this.stateMachine= new StateMachine(this,"game");
+        this.client = new Colyseus.Client("ws://localhost:2567");
+        this.stateMachine= new StateMachine(this, "game");
         this.stateMachine.addState('idle')
             .addState('wait-for-dice-roll',{
                 onEnter:this.handleWaitForDiceRoll,
@@ -107,10 +107,29 @@ export default class Game extends Phaser.Scene
         const board = this.add.image(width*0.5,height*0.5,"board");
         board.setScale(0.36, 0.36);
 
-        const room = await this.client.joinOrCreate('GameRoom');
+        const roomId = document.getElementById("gameroomcode").innerText;
+        const username = document.getElementById("username").innerText;
+
+        const room = await this.client.joinOrCreate(roomId, {
+            name: username
+        });
         this.room = room;
 
+        document.getElementById("msg-input").addEventListener("keypress", (e) => {
+            if(e.keyCode === 13 || e.which === 13){
+                this.room.send("text-msg", {
+                    username: username,
+                    msg: e.target.value
+                });
 
+                e.target.value = "";
+            }
+        });
+
+        room.onMessage("received-msg", data => {
+            // console.log("msg", data);
+            this.addToMsgScreen(data);
+        })
 
         room.onStateChange.once(state=>{
             // console.log("[initialstate]", state);
@@ -201,6 +220,7 @@ export default class Game extends Phaser.Scene
         this.room.state.playerStates.onAdd = (item) => {
             console.log("onAdd func", item);
             this.initializePlayerState(item, cx, cy);
+            this.updateLeaderBoard(this.room.state.playerStates);
         } 
 
         this.room.state.playerStates.onRemove = (item) => {
@@ -209,7 +229,7 @@ export default class Game extends Phaser.Scene
             if(!piece) {
                 return 
             }
-
+            this.updateLeaderBoard(this.room.state.playerStates);
             piece.destroy();
         } 
 
@@ -1362,6 +1382,48 @@ export default class Game extends Phaser.Scene
             })
         }
         
+    }
+
+    updateLeaderBoard(players) {
+
+        console.log(players);
+
+        const leaderboardPlayers = players.map(player => {
+            return {
+                username: player.username,
+                currentIncome: player.currentIncome,
+                currentCC: player.currentCC
+            }
+        });
+
+        leaderboardPlayers.sort((a, b) => a.currentCC < b.currentCC);
+
+        // console.log("leader board players");
+        // console.log(leaderboardPlayers);
+
+        const ul = document.getElementById("leaderboard");
+        ul.innerHTML = "";
+
+        leaderboardPlayers.forEach((player, idx) => {
+            let li = document.createElement("li");
+            li.innerHTML = `<div class="name">${idx+1}. ${player.username}</div>
+                                <div class="currency">
+                                    $ ${player.currentIncome} k
+                                    CC ${player.currentCC}
+                                </div>`
+
+            ul.appendChild(li);
+        });
+    }
+
+    addToMsgScreen(data) {
+        const ul = document.getElementById("msg-display");
+
+        let li = document.createElement("li");
+        li.innerHTML = `<div class="name">${data.username}:</div>
+                        <div class="msg">${data.msg}</div>`
+
+        ul.appendChild(li);
     }
 
 }

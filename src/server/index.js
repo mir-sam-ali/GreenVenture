@@ -7,6 +7,7 @@ const { monitor } = require('@colyseus/monitor');
 
 // const demo room handlers
 const { GameRoom } = require("./rooms/gameRoom");
+const { async } = require('regenerator-runtime');
 
 const port = Number(process.env.PORT || 2567);
 const app = express();
@@ -22,7 +23,7 @@ const gameServer = new Server({
 });
 
 // Define "lobby" room
-gameServer.define("GameRoom", GameRoom);
+// gameServer.define("GameRoom", GameRoom);
 
 app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, "..", "..", "dist")));
@@ -33,6 +34,18 @@ app.get("/", (req, res) => {
 
 // (optional) attach web monitoring panel
 app.use('/colyseus', monitor());
+
+app.get("/create/:code", (req, res) => {
+  const code = req.params.code
+  // console.log(code);
+
+  gameServer.define(code, GameRoom);
+
+  res.json({
+    msg: "successfully created room"
+  });
+
+});
 
 gameServer.onShutdown(function(){
   console.log(`game server is going down.`);

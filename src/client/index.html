@@ -11,9 +11,34 @@
 			</div>
 			
 			<div class="join-controls">
-				Game Code: xvghj
+				<div>
+					Username: <span id="username"></span>
+				</div>
+				<div class="separator"></div>
+				<div>
+					Game Code: <span id="gameroomcode"></span>
+				</div>
 			</div>
 		</nav>
+
+		<div class="join-window">
+			<div class="join-window-div">
+				<div class="brand">Green Ventures</div>
+				<div class="username">
+					<div>
+						Username
+					</div>
+					<input placeholder="Username"  id="username-input">
+				</div>
+				<div class="gameroomname">
+					<div>
+						Game code
+					</div>
+					<input placeholder="Random code of length 5" id="gameroomcode-input">
+				</div>
+				<button id="join-game-btn">Join/Create Game</button>
+			</div>
+		</div>
 
 		<div class="game-section">
 			<div id="game-canvas"></div>
@@ -21,8 +46,8 @@
 			<div class="game-stats">
 				<div class="score-board">
 					<div>Leader Board</div>
-					<ul>
-						<li>
+					<ul id="leaderboard">
+						<!-- <li>
 							<div class="name">1. Tommy</div>
 							<div class="currency">
 								$ 250 k
@@ -49,7 +74,7 @@
 								$ 250 k
 								CC -10
 							</div>
-						</li>
+						</li> -->
 					</ul>
 				</div>
 
@@ -58,16 +83,14 @@
 						Message
 					</div>
 					<div class="chat-display">
-						<ul>
-							<li>
-								<div class="name">Tommy:</div>
-								<div class="msg">Hey</div>
-							</li>
+						<ul id="msg-display">
+
 						</ul>
 					</div>
 					<div class="chat-input">
 						<input
 							placeholder="Text here..."
+							id="msg-input"
 						>
 					</div>
 				</div>
@@ -76,6 +99,5 @@
 
 		<script src="main.js"></script>
 		<script src="enterGame.js"></script>
-	
 	</body>
 </html>
