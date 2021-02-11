@@ -84,6 +84,13 @@ export default class Game extends Phaser.Scene
         this.load.image("purple","assets/sprites/player3/automobile.png")
         this.load.image("orange","assets/sprites/player4/automobile.png")
         this.load.image("yellow","assets/sprites/player5/automobile.png")
+
+        this.load.image("blue-industry", "assets/sprites/player1/building.png")
+        this.load.image("green-industry" ,"assets/sprites/player2/building.png")
+        this.load.image("purple-industry","assets/sprites/player3/building.png")
+        this.load.image("orange-industry","assets/sprites/player4/building.png")
+        this.load.image("yellow-industry","assets/sprites/player5/building.png")
+
         this.load.image("build_button","assets/build.png")
         this.load.image("cancel_button","assets/cancel.png")
         this.load.image("upgrade_button","assets/upgrade.png")
@@ -106,6 +113,7 @@ export default class Game extends Phaser.Scene
         this.cy=cy;
         const board = this.add.image(width*0.5,height*0.5,"board");
         board.setScale(0.36, 0.36);
+        this.allIndustrySprites=[]
 
         const roomId = document.getElementById("gameroomcode").innerText;
         const username = document.getElementById("username").innerText;
@@ -141,7 +149,7 @@ export default class Game extends Phaser.Scene
             // })
 
             this.handleInitialState(state, cx, cy);
-            const text = this.add.text(cx-290, cy-350,`Current Turn: ${indexToColorMapping[state.currentPlayerTurnIndex]}`, {
+            const text = this.add.text(cx-290, cy-370,`Current Turn: ${indexToColorMapping[state.currentPlayerTurnIndex]}`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'28px',
                 align: "center"
@@ -177,7 +185,7 @@ export default class Game extends Phaser.Scene
                 align: "center"
             })
 
-            this.automobileFuelText=this.add.text(cx-370,cy+50,`${automobile.fuelCost}`,{
+            this.automobileFuelText=this.add.text(cx-370,cy+50,`$${automobile.fuelCost}k`,{
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center",
@@ -198,7 +206,7 @@ export default class Game extends Phaser.Scene
                 color:'black'
             })
 
-            this.coinText=this.add.text(cx-430,cy-280,`$${player.currentIncome}`,{
+            this.coinText=this.add.text(cx-430,cy-280,`$${player.currentIncome}k`,{
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'19px',
                 align: "center",
@@ -486,7 +494,7 @@ export default class Game extends Phaser.Scene
             console.log("Forest Event");
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
-                this.displayMessage(["You caught wood smugglers in your forest.","You receive $20."])
+                this.displayMessage(["You caught wood smugglers in your forest.","You receive $20k."])
                 this.room.send("Event",{
                     income: 20,
                     cc: 0,
@@ -507,7 +515,7 @@ export default class Game extends Phaser.Scene
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
                 
-                this.displayMessage(["You have constructed a waste management sector.","You lose 300 amounts of carbon currency","and receive $10 money."])
+                this.displayMessage(["You have constructed a waste management sector.","You lose 300 amounts of carbon currency","and receive $10k money."])
                 this.room.send("Event",{
                     income: 10,
                     cc: -300,
@@ -516,7 +524,7 @@ export default class Game extends Phaser.Scene
             else{
                 //Odd is Mis-Fortune
                 const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length===0?0:20;  
-                this.displayMessage(["One of your industries has been"," damaged by a natural disaster."," Repair your industry before it is late.","(Doesn’t apply if you don’t own any industry)",`${amount} deducted from your money`])
+                this.displayMessage(["One of your industries has been"," damaged by a natural disaster."," Repair your industry before it is late.","(Doesn’t apply if you don’t own any industry)",`${amount}k deducted from your money`])
                 this.room.send("Event",{
                     income: -(amount),
                     cc: 0,
@@ -529,7 +537,7 @@ export default class Game extends Phaser.Scene
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
                 
-                this.displayMessage(["Government has awarded all plantation owners $20 money."])
+                this.displayMessage(["Government has awarded all plantation owners $20k money."])
                 this.room.send("Event",{
                     income: 20,
                     cc: 0,
@@ -538,7 +546,7 @@ export default class Game extends Phaser.Scene
             else{
                 //Odd is Mis-Fortune
                 
-                this.displayMessage(["There has been a landslide in your hills.","You lose $20 money and gain 200 carbon footprint."])
+                this.displayMessage(["There has been a landslide in your hills.","You lose $20k money and gain 200 carbon footprint."])
                 this.room.send("Event",{
                     income: -20,
                     cc: 200,
@@ -551,7 +559,7 @@ export default class Game extends Phaser.Scene
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
                 
-                this.displayMessage(["You installed an electric precipitator filter in your ships’ chimney."," By doing this you lose 400 Carbon FootPrint"])
+                this.displayMessage(["You installed an electric precipitator"," filter in your ships’ chimney."," By doing this you lose 400 Carbon FootPrint"])
                 this.room.send("Event",{
                     income: 0,
                     cc: -200,
@@ -560,7 +568,7 @@ export default class Game extends Phaser.Scene
             else{
                 //Odd is Mis-Fortune
                 
-                this.displayMessage(["One of Your ships has stopped working.","Pay $30 for repair."])
+                this.displayMessage(["One of Your ships has stopped working.","Pay $30k for repair."])
                 this.room.send("Event",{
                     income: -30,
                     cc: 0,
@@ -573,7 +581,7 @@ export default class Game extends Phaser.Scene
             if(this.room.state.lastDiceValue%2===0){
                 //Even is Fortune
                 
-                this.displayMessage(["You have found diamonds in your coal industry!!!"," You gain $100 amount of money."])
+                this.displayMessage(["You have found diamonds in your coal industry!!!"," You gain $100k amount of money."])
                 this.room.send("Event",{
                     income: 100,
                     cc: 0,
@@ -604,7 +612,7 @@ export default class Game extends Phaser.Scene
             else{
                 //Odd is Mis-Fortune
                 
-                this.displayMessage(["There was a flood in one of your farms,"," and you have lost all your grown crops.","You lose $20 amount of money"])
+                this.displayMessage(["There was a flood in one of your farms,"," and you have lost all your grown crops.","You lose $20k amount of money"])
                 this.room.send("Event",{
                     income: -20,
                     cc: 0,
@@ -615,7 +623,7 @@ export default class Game extends Phaser.Scene
             //Pay Employees
             console.log("Pay Employees");
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*20;            
-            this.displayMessage(["You have to pay your employees.","Pay $20 for each Industry",` $${amount} is deducted from your money.`])
+            this.displayMessage(["You have to pay your employees.","Pay $20k for each Industry",` $${amount}k is deducted from your money.`])
             
             this.room.send("Event",{
                 income:(-amount),
@@ -672,7 +680,7 @@ export default class Game extends Phaser.Scene
             console.log("Pay Tax");
             
             const amount=this.room.state.playerStates[this.playerIndex].industriesOwned.length*10;            
-            this.displayMessage(["You have to pay your Tax.","Pay $10 for each Industry",` $${amount} is deducted from your money.`])
+            this.displayMessage(["You have to pay your Tax.","Pay $10k for each Industry",` $${amount}k is deducted from your money.`])
             
             this.room.send("Event",{
                 income:(-amount),
@@ -866,6 +874,7 @@ export default class Game extends Phaser.Scene
         });
 
         this.updateLeaderBoard(this.room.state.playerStates);
+        this.addIndustrySprites();
         
         
         this.text.setText(`Current Turn: ${indexToColorMapping[this.room.state.currentPlayerTurnIndex]}`);
@@ -876,14 +885,72 @@ export default class Game extends Phaser.Scene
             this.dice.setTexture(`die-image-${this.room.state.lastDiceValue}`);
 
         const player=this.room.state.playerStates[this.playerIndex];
-        this.coinText.setText(`$${player.currentIncome}`)
-        this.carbonText.setText(`${player.currentCC}`)
+        this.coinText.setText(`$${player.currentIncome.toFixed(2)}k`)
+        this.carbonText.setText(`${player.currentCC.toFixed(2)}`)
 
         this.automobileTypeText.setText(`${player.automobile.type}`)
-        this.automobileFuelText.setText(`${player.automobile.fuelCost}`)
+        this.automobileFuelText.setText(`$${player.automobile.fuelCost}k`)
         this.automobileCarbonText.setText(`${player.automobile.carbonCost}`)
         
     }
+
+
+    addIndustrySprites(){
+        
+        this.room.state.playerStates.forEach((playerState, idx) => {                        
+            if(playerState.industriesOwned.length!==0){
+                playerState.industriesOwned.forEach(industry=>{
+                    
+                    const tilePosition=industry.tile;
+                    const isAlreadyDisplayed=this.allIndustrySprites.find((ind)=>ind.tile===tilePosition);
+                    if(isAlreadyDisplayed!==undefined){
+                        // sprite already added to the board
+                        return;
+                    }
+
+                    let x=0,y=0;
+                    if(tilePosition >=0 && tilePosition<=9){
+                        x=tilePosition;
+                        y=0;
+                    }
+                    else if(tilePosition >9 && tilePosition<=18){
+                        x=9;
+                        y=tilePosition-9;
+                    }
+                    else if(tilePosition >18 && tilePosition<=27){
+                        y=9;
+                        x=27-tilePosition;
+                    }
+                    else {
+                        x=0;
+                        y=36-tilePosition;
+                    }
+
+                    if(y===0){
+                        // top row
+                        this.add.image(this.cx+BoardOffsetsX[x],this.cy+BoardOffsetsY[y]-40,`${indexToColorMapping[playerState.index].toLowerCase()}-industry`).setScale(0.4);
+                        
+
+                    }
+                    else if(y===9){
+                        //bottom row
+                        this.add.image(this.cx+BoardOffsetsX[x],this.cy+BoardOffsetsY[y]+40,`${indexToColorMapping[playerState.index].toLowerCase()}-industry`).setScale(0.4);
+
+                    }
+                    else if(x==0){
+                        // left column
+                        this.add.image(this.cx+BoardOffsetsX[x]-40,this.cy+BoardOffsetsY[y],`${indexToColorMapping[playerState.index].toLowerCase()}-industry`).setScale(0.4);
+                    }
+                    else{
+                        // right column
+                        this.add.image(this.cx+BoardOffsetsX[x]+40,this.cy+BoardOffsetsY[y],`${indexToColorMapping[playerState.index].toLowerCase()}-industry`).setScale(0.4);
+                    }
+                    this.allIndustrySprites.push(industry);
+                })
+            }
+        });
+    }
+
 
     createPiece (idx, cx, cy) {
         let p;
@@ -968,7 +1035,7 @@ export default class Game extends Phaser.Scene
             });
 
 
-            const text3=this.add.text(this.cx-200, this.cy-100,`Income: ${details.industry.income}`, {
+            const text3=this.add.text(this.cx-200, this.cy-100,`Income: ${details.industry.income}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -994,13 +1061,13 @@ export default class Game extends Phaser.Scene
                 align: "center"
             });
 
-            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${nextLevelCost}`, {
+            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${nextLevelCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
-            const text7=this.add.text(this.cx-200, this.cy+40,`Income: ${nextLevelIncome}`, {
+            const text7=this.add.text(this.cx-200, this.cy+40,`Income: ${nextLevelIncome}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1109,7 +1176,7 @@ export default class Game extends Phaser.Scene
             });
 
 
-            const text4=this.add.text(this.cx-200, this.cy-80,`Build Cost: ${details.industry_1.baseCost}`, {
+            const text4=this.add.text(this.cx-200, this.cy-80,`Build Cost: ${details.industry_1.baseCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1121,7 +1188,7 @@ export default class Game extends Phaser.Scene
                 align: "center"
             });
 
-            const text6=this.add.text(this.cx-200, this.cy-40,`Income: ${details.industry_1.baseIncome}`, {
+            const text6=this.add.text(this.cx-200, this.cy-40,`Income: ${details.industry_1.baseIncome}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1170,7 +1237,7 @@ export default class Game extends Phaser.Scene
             });
 
 
-            const text8=this.add.text(this.cx-200, this.cy+40,`Build Cost: ${details.industry_2.baseCost}`, {
+            const text8=this.add.text(this.cx-200, this.cy+40,`Build Cost: ${details.industry_2.baseCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1182,7 +1249,7 @@ export default class Game extends Phaser.Scene
                 align: "center"
             });
 
-            const text10=this.add.text(this.cx-200, this.cy+80,`Income: ${details.industry_2.baseIncome}`, {
+            const text10=this.add.text(this.cx-200, this.cy+80,`Income: ${details.industry_2.baseIncome}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1272,7 +1339,7 @@ export default class Game extends Phaser.Scene
             });
 
 
-            const text3=this.add.text(this.cx-200, this.cy-100,`Fuel Cost: ${details.currentLevel.fuelCost}`, {
+            const text3=this.add.text(this.cx-200, this.cy-100,`Fuel Cost: ${details.currentLevel.fuelCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1294,13 +1361,13 @@ export default class Game extends Phaser.Scene
                 align: "center"
             });
 
-            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${details.nextLevel.upgradeCost}`, {
+            const text6=this.add.text(this.cx-200, this.cy+20,`Upgrade Cost: ${details.nextLevel.upgradeCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
             });
 
-            const text7=this.add.text(this.cx-200, this.cy+40,`Fuel Cost: ${details.nextLevel.fuelCost}`, {
+            const text7=this.add.text(this.cx-200, this.cy+40,`Fuel Cost: ${details.nextLevel.fuelCost}k`, {
                 fontFamily: '"Paytone one", san-serif',
                 fontSize:'15px',
                 align: "center"
@@ -1412,8 +1479,8 @@ export default class Game extends Phaser.Scene
             let li = document.createElement("li");
             li.innerHTML = `<div class="name">${idx+1}. ${player.username}</div>
                                 <div class="currency">
-                                    $ ${player.currentIncome} k
-                                    CC ${player.currentCC}
+                                    $ ${player.currentIncome.toFixed(2)} k
+                                    CC ${player.currentCC.toFixed(2)}
                                 </div>`
 
             ul.appendChild(li);
