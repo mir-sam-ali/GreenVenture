@@ -10,7 +10,7 @@ if(window.location.pathname === "/"){
         document.getElementById("gameroomcode").innerHTML = gameroomcode;
         document.getElementById("username").innerHTML = username;
     
-        fetch(`http://localhost:2567/create/${gameroomcode}`)
+        fetch(`/create/${gameroomcode}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
