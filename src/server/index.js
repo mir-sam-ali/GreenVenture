@@ -28,10 +28,6 @@ const gameServer = new Server({
 app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, "..", "..", "dist")));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "..", "dist", "index.html"));
-});
-
 // (optional) attach web monitoring panel
 app.use('/colyseus', monitor());
 
@@ -45,6 +41,10 @@ app.get("/create/:code", (req, res) => {
     msg: "successfully created room"
   });
 
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "..", "dist", "index.html"));
 });
 
 gameServer.onShutdown(function(){
